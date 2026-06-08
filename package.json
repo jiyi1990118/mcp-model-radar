@@ -1,0 +1,79 @@
+{
+  "name": "@npm_xiyuan/mcp-model-radar",
+  "version": "2.0.0",
+  "description": "🚀 Real-time AI model intelligence MCP server - Track trends, compare models, get smart recommendations from HuggingFace, OpenRouter & Arena",
+  "main": "dist/server.js",
+  "bin": {
+    "modelradar": "dist/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc && npm run copy-sql",
+    "copy-sql": "mkdir -p dist/db && cp src/db/*.sql dist/db/",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "seed": "tsx src/scripts/seed-initial-data.ts",
+    "test": "node dist/test-tools.js",
+    "insert-test": "npx tsx src/insert-test-data.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "MCP_TOOLS.md",
+    "MCP_CONFIG_GUIDE.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "claude",
+    "claude-desktop",
+    "ai",
+    "ai-models",
+    "llm",
+    "large-language-models",
+    "huggingface",
+    "openrouter",
+    "lmsys-arena",
+    "model-intelligence",
+    "model-tracking",
+    "model-comparison",
+    "model-recommendation",
+    "model-search",
+    "trend-analysis",
+    "ai-agent",
+    "model-discovery",
+    "quantization",
+    "gguf",
+    "local-llm",
+    "model-benchmarks"
+  ],
+  "author": "Xiyuan",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jiyi1990118/mcp-model-radar.git"
+  },
+  "homepage": "https://github.com/jiyi1990118/mcp-model-radar#readme",
+  "bugs": {
+    "url": "https://github.com/jiyi1990118/mcp-model-radar/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "axios": "^1.17.0",
+    "better-sqlite3": "^12.10.0",
+    "dotenv": "^17.4.2",
+    "node-cron": "^4.2.1",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.9.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

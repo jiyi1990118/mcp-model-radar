@@ -1,6 +1,7 @@
 # AI Model Intelligence MCP
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/modelradar)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/jiyi1990118/mcp-model-radar)
+[![npm](https://img.shields.io/npm/v/@npm_xiyuan/mcp-model-radar)](https://www.npmjs.com/package/@npm_xiyuan/mcp-model-radar)
 [![License](https://img.shields.io/badge/license-ISC-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org)
@@ -69,8 +70,8 @@ Clone and run with one command:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/modelradar.git
-cd modelradar
+git clone https://github.com/jiyi1990118/mcp-model-radar.git
+cd mcp-model-radar
 
 # Initialize and start (auto-installs dependencies, builds, and sets up database)
 npx modelradar init
@@ -143,8 +144,8 @@ Zero configuration, perfect for local development and testing.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/modelradar.git
-cd modelradar
+git clone https://github.com/jiyi1990118/mcp-model-radar.git
+cd mcp-model-radar
 
 # Install dependencies
 npm install
@@ -657,7 +658,7 @@ Contributions are welcome! This project follows standard open source practices.
 ### How to Contribute
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/yourusername/modelradar.git`
+2. **Clone** your fork: `git clone https://github.com/yourusername/mcp-model-radar.git`
 3. **Create a branch**: `git checkout -b feature/your-feature`
 4. **Make changes** and test thoroughly
 5. **Commit**: `git commit -m "Add: your feature description"`
@@ -732,9 +733,9 @@ ISC License - See [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/modelradar/issues)
-- 💡 **Feature Requests**: [Open an issue](https://github.com/yourusername/modelradar/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/modelradar/discussions)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/jiyi1990118/mcp-model-radar/issues)
+- 💡 **Feature Requests**: [Open an issue](https://github.com/jiyi1990118/mcp-model-radar/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/jiyi1990118/mcp-model-radar/discussions)
 - 📧 **Email**: your-email@example.com
 
 ---

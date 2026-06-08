@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ai-model-intelligence__get_hot_models",
+      "mcp__ai-model-intelligence__search_models",
+      "Bash(sqlite3 *)"
+    ]
+  }
+}

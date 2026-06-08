@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ai-model-intelligence": {
+      "command": "node",
+      "args": [
+        "/Users/jary/Desktop/tempDocs/modelRadar/dist/server.js"
+      ],
+      "env": {
+        "DB_TYPE": "sqlite",
+        "SQLITE_DB_PATH": "./modelradar.db"
+      }
+    }
+  }
+}
