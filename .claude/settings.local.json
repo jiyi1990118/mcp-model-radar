@@ -3,7 +3,8 @@
     "allow": [
       "mcp__ai-model-intelligence__get_hot_models",
       "mcp__ai-model-intelligence__search_models",
-      "Bash(sqlite3 *)"
+      "Bash(sqlite3 *)",
+      "mcp__github-trending__analyze_repo"
     ]
   }
 }
