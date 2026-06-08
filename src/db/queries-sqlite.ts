@@ -193,3 +193,38 @@ export function getMetricsHistory(db: any, modelId: string, days: number = 30) {
   `);
   return stmt.all(modelId, days);
 }
+
+export function getTrendingChanges(db: any, period: string = '7d', metric: string = 'trend_score') {
+  const days = period === '24h' ? 1 : period === '7d' ? 7 : 30;
+
+  const query = `
+    WITH recent AS (
+      SELECT model_id, ${metric} as current_value
+      FROM models
+    ),
+    historical AS (
+      SELECT
+        model_id,
+        AVG(${metric === 'trend_score' ? 'trend_score' : metric}) as past_value
+      FROM metrics_history
+      WHERE recorded_at BETWEEN datetime('now', '-' || ? || ' days') AND datetime('now', '-' || ? || ' days')
+      GROUP BY model_id
+    )
+    SELECT
+      r.model_id,
+      m.name,
+      m.author,
+      r.current_value,
+      COALESCE(h.past_value, r.current_value) as past_value,
+      ROUND(((r.current_value - COALESCE(h.past_value, r.current_value)) / NULLIF(COALESCE(h.past_value, 1), 0)) * 100, 2) as growth_rate,
+      (r.current_value - COALESCE(h.past_value, r.current_value)) as absolute_change
+    FROM recent r
+    LEFT JOIN historical h ON r.model_id = h.model_id
+    JOIN models m ON r.model_id = m.model_id
+    WHERE r.current_value > 0
+    ORDER BY absolute_change DESC
+    LIMIT 50
+  `;
+
+  return db.prepare(query).all(days + 1, days);
+}
