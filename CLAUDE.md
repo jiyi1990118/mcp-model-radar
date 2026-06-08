@@ -6,11 +6,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AI Model Intelligence MCP** is an MCP (Model Context Protocol) server that provides real-time intelligence about the global AI model ecosystem. It aggregates data from multiple sources (HuggingFace, OpenRouter, LMSYS Arena, GitHub, Reddit) to help AI agents and developers discover, track, analyze, and compare models.
 
+**npm Package**: `@npm_xiyuan/mcp-model-radar`  
+**Version**: 2.0.2  
+**GitHub**: https://github.com/jiyi1990118/mcp-model-radar
+
 This is NOT just a model search tool—it's a comprehensive model intelligence platform that answers:
 - Which models are trending?
 - Which models are growing fastest?
 - Which models are best for agents/local deployment/specific tasks?
 - Which models might become the next breakthrough?
+
+## Quick Start
+
+### Installation
+
+```bash
+npm install -g @npm_xiyuan/mcp-model-radar
+```
+
+### Configuration (Claude Desktop)
+
+Add to your Claude Desktop config:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop and you'll have access to **17 powerful AI model intelligence tools**.
 
 ## Architecture
 
@@ -103,6 +135,8 @@ Data Sources (HuggingFace, OpenRouter, Arena, GitHub, Reddit)
 
 ## MCP Tools
 
+**Total: 17 Tools** organized in 4 categories (Core, Filter, Advanced, Analytics)
+
 ### V1 Core Tools (✅ Implemented)
 - `get_hot_models`: Get trending models with trend scores
 - `get_latest_models`: Get recently released models
@@ -159,13 +193,21 @@ Evaluates: Tool calling, function calling, structured output, long context, reli
 **V1 (✅ Completed)**
 - HuggingFace data collection
 - OpenRouter data collection
-- Basic MCP tools (5 core tools)
+- 5 core MCP tools
+- 4 filter tools
 - Trend score calculation
 - SQLite support (recommended)
 - PostgreSQL support (optional)
 - Database abstraction layer
 
-**V2**
+**V1.1 (✅ Completed)**
+- 2 advanced tools (versions & ecosystem)
+
+**V2 (✅ Completed)**
+- 5 analytics tools (batch compare, recommendations, deployment, benchmarks, trending changes)
+- Total: 17 tools implemented
+
+**V3 (Planned)**
 - Add Arena, GitHub, Reddit sources
 - Community heat tracking
 - Darkhorse detection
@@ -209,7 +251,12 @@ npm start
 - Design for hourly data collection from primary sources
 - Calculate trend scores based on growth rates, not absolute values
 - Support multiple quantization formats (GGUF, AWQ, GPTQ, MLX)
-- Target MCP clients: Claude Desktop, Cursor, Cherry Studio, Open WebUI, Cline, RooCode
+
+### Supported MCP Clients
+**AI Assistants:** Claude Desktop, Claude Code, Cherry Studio, Open WebUI
+**AI Coding Agents:** Aider, OpenHands, Void, Aide, Devin
+**IDEs & Editors:** Cursor, Windsurf, Zed, VS Code (via Cline/Continue), JetBrains (via Continue)
+**VS Code Extensions:** Cline, Continue, RooCode
 
 ## Documentation
 

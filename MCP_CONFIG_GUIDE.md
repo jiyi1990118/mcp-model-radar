@@ -6,7 +6,36 @@
 
 本指南介绍如何在各种 MCP 客户端中配置 AI Model Intelligence MCP 服务器。
 
-### 前置准备
+### 📦 推荐方式：npm 安装（零配置）
+
+**最简单的方式**是通过 npm 全局安装：
+
+```bash
+npm install -g @npm_xiyuan/mcp-model-radar
+```
+
+然后在客户端配置中使用 `npx` 命令：
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+✅ **优点**：
+- 零配置，开箱即用
+- 自动管理依赖
+- 无需手动构建或指定路径
+- 自动使用最新版本
+
+### 🔧 备选方式：从源码安装
+
+如果你需要修改源码或本地开发，可以从源码构建：
 
 1. 确保项目已构建：
 ```bash
@@ -24,20 +53,36 @@ npm run insert-test
 
 ## Claude Desktop
 
-### 配置位置
+### 方式 1：使用 npm（推荐）
 
+### 方式 1：使用 npm（推荐）
+
+**配置位置**：
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-### 配置内容
-
+**配置内容**：
 ```json
 {
   "mcpServers": {
-    "ai-model-intelligence": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+### 方式 2：从源码运行
+
+**配置内容**：
+```json
+{
+  "mcpServers": {
+    "model-radar": {
       "command": "node",
-      "args": ["/absolute/path/to/modelRadar/dist/server.js"],
+      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"],
       "env": {
         "DB_TYPE": "sqlite",
         "SQLITE_DB_PATH": "./modelradar.db"
@@ -47,7 +92,7 @@ npm run insert-test
 }
 ```
 
-⚠️ **重要**：将 `/absolute/path/to/modelRadar` 替换为实际路径！
+⚠️ **重要**：将 `/absolute/path/to/mcp-model-radar` 替换为实际路径！
 
 ### 验证
 
@@ -60,19 +105,33 @@ npm run insert-test
 
 ## Cursor
 
-### 配置位置
+### 方式 1：使用 npm（推荐）
 
+**配置位置**：
 - **macOS/Linux**: `~/.cursor/mcp_config.json`
 - **Windows**: `%USERPROFILE%\.cursor\mcp_config.json`
 
-### 配置内容
-
+**配置内容**：
 ```json
 {
   "mcpServers": {
-    "ai-model-intelligence": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+### 方式 2：从源码运行
+
+**配置内容**：
+```json
+{
+  "mcpServers": {
+    "model-radar": {
       "command": "node",
-      "args": ["/absolute/path/to/modelRadar/dist/server.js"]
+      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"]
     }
   }
 }
@@ -89,7 +148,7 @@ npm run insert-test
 
 ## Cline (VS Code Extension)
 
-### 配置方式
+### 方式 1：使用 npm（推荐）
 
 1. 打开 VS Code
 2. 安装 Cline 扩展
@@ -98,9 +157,20 @@ npm run insert-test
 
 ```json
 {
-  "ai-model-intelligence": {
+  "model-radar": {
+    "command": "npx",
+    "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+  }
+}
+```
+
+### 方式 2：从源码运行
+
+```json
+{
+  "model-radar": {
     "command": "node",
-    "args": ["/absolute/path/to/modelRadar/dist/server.js"],
+    "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"],
     "env": {
       "DB_TYPE": "sqlite"
     }
@@ -112,19 +182,32 @@ npm run insert-test
 
 ## Continue (VS Code Extension)
 
-### 配置位置
+### 方式 1：使用 npm（推荐）
 
-`~/.continue/config.json`
+**配置位置**：`~/.continue/config.json`
 
-### 配置内容
+**配置内容**：
+```json
+{
+  "mcpServers": [
+    {
+      "name": "model-radar",
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  ]
+}
+```
+
+### 方式 2：从源码运行
 
 ```json
 {
   "mcpServers": [
     {
-      "name": "ai-model-intelligence",
+      "name": "model-radar",
       "command": "node",
-      "args": ["/absolute/path/to/modelRadar/dist/server.js"]
+      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"]
     }
   ]
 }
@@ -134,19 +217,32 @@ npm run insert-test
 
 ## Zed Editor
 
-### 配置位置
+### 方式 1：使用 npm（推荐）
 
+**配置位置**：
 - **macOS**: `~/Library/Application Support/Zed/mcp.json`
 - **Linux**: `~/.config/zed/mcp.json`
 
-### 配置内容
+**配置内容**：
+```json
+{
+  "servers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+### 方式 2：从源码运行
 
 ```json
 {
   "servers": {
-    "ai-model-intelligence": {
+    "model-radar": {
       "command": "node",
-      "args": ["/absolute/path/to/modelRadar/dist/server.js"]
+      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"]
     }
   }
 }
