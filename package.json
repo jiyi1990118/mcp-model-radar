@@ -1,6 +1,6 @@
 {
   "name": "@npm_xiyuan/mcp-model-radar",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "🚀 Real-time AI model intelligence MCP server - Track trends, compare models, get smart recommendations from HuggingFace, OpenRouter & Arena",
   "main": "dist/server.js",
   "bin": {
