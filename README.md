@@ -39,74 +39,46 @@ In the rapidly evolving AI landscape, staying updated on model trends is crucial
 
 ## ✨ Features
 
-### Core Capabilities
+### 17 Powerful MCP Tools
 
-- 🔥 **Hot Models** - Track trending models by growth rate
-- 🆕 **Latest Models** - Discover recently released models
-- 🔍 **Advanced Search** - Multi-filter search with flexible sorting (type, license, author)
-- 📊 **Enhanced Details** - Comprehensive model info with VRAM estimates and quantization versions
-- ⚖️ **Model Comparison** - Compare two models across multiple dimensions
-- 🔄 **Batch Comparison** - Compare 2-5 models simultaneously across dimensions
-- 🎯 **Task Recommendations** - Get AI model recommendations for specific tasks with constraints
-- 🚀 **Deployment Guides** - Hardware-aware deployment feasibility analysis
-- 📊 **Benchmark Data** - Arena ELO ratings and benchmark scores
-- 📈 **Trend Tracking** - Track rank and metric changes over time (rising/falling models)
-- 📦 **Quantization Versions** - Find GGUF/AWQ/GPTQ/MLX variants for local deployment
-- 🌳 **Model Ecosystem** - Explore base models and all derivative fine-tunes
-- 💰 **Pricing Data** - Real-time pricing from OpenRouter
-- 📈 **Trend Analysis** - Growth-based scoring algorithm (0-100)
-- 🎯 **Smart Filtering** - Filter by type, size, license, or author
+| Category | Tool | Description | Use Case |
+|----------|------|-------------|----------|
+| 🔥 **Discovery** | `get_hot_models` | Track trending models by growth rate | "What are the hottest models this week?" |
+| 🆕 **Discovery** | `get_latest_models` | Discover recently released models | "Show me newly released models" |
+| 🔍 **Search** | `search_models` | Advanced search with filters (type, license, author, sorting) | "Find Apache-2.0 licensed coding models" |
+| 📊 **Details** | `get_model_detail` | Comprehensive model info with VRAM estimates | "Tell me about Qwen2.5-Coder-32B" |
+| ⚖️ **Comparison** | `compare_models` | Compare two models across dimensions | "Compare Llama-3.3-70B vs DeepSeek-V3" |
+| 🔄 **Comparison** | `compare_models_batch` | Compare 2-5 models simultaneously | "Compare top 3 coding models" |
+| 🎯 **Recommendation** | `recommend_for_task` | Task-based recommendations with constraints | "Best model for coding on 24GB GPU" |
+| 🚀 **Deployment** | `get_deployment_guide` | Hardware-aware feasibility analysis | "Can I run Qwen2.5-72B on 32GB VRAM?" |
+| 📊 **Benchmarks** | `get_model_benchmarks` | Arena ELO ratings and benchmark scores | "Show benchmark scores for Claude-3.5" |
+| 📈 **Analytics** | `get_trending_changes` | Track rank and metric changes over time | "Which models are rising in popularity?" |
+| 📦 **Quantization** | `get_model_versions` | Find GGUF/AWQ/GPTQ/MLX variants | "Show quantized versions of Llama-3.3" |
+| 🌳 **Ecosystem** | `get_model_ecosystem` | Explore base models and derivatives | "What models are based on Llama-3?" |
+| 🏷️ **Filter** | `get_models_by_type` | Filter models by type/tags | "Show all text-to-image models" |
+| 📏 **Filter** | `get_models_by_size` | Filter by parameter count range | "Models between 7B and 13B parameters" |
+| 📜 **Filter** | `get_models_by_license` | Filter by license type | "Show all MIT licensed models" |
+| 👤 **Filter** | `get_models_by_author` | Get models from specific author/org | "All models by Qwen team" |
 
 ### Data Sources
 
-- **HuggingFace** - Downloads, likes, metadata, tags, licenses
-- **OpenRouter** - Pricing, context length, provider availability
+| Source | Data Provided |
+|--------|---------------|
+| 🤗 **HuggingFace** | Downloads, likes, metadata, tags, licenses, model cards |
+| 🔄 **OpenRouter** | Real-time pricing, context length, provider availability |
+| 🏆 **LMSYS Arena** | ELO ratings, rankings, benchmark scores *(Coming Soon)* |
 
 ## 🚀 Quick Start
 
-### Option 1: Using npx (Simplest)
-
-Clone and run with one command:
+### Step 1: Install via npm (Recommended)
 
 ```bash
-# Clone the repository
-git clone https://github.com/jiyi1990118/mcp-model-radar.git
-cd mcp-model-radar
-
-# Initialize and start (auto-installs dependencies, builds, and sets up database)
-npx modelradar init
-npx modelradar start
+npm install -g @npm_xiyuan/mcp-model-radar
 ```
 
-Or if you have the package published to npm:
+### Step 2: Configure Claude Desktop
 
-```bash
-npx modelradar init
-```
-
-### Option 2: Manual Setup
-
-Get started in under 2 minutes with SQLite (zero configuration):
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Build the project
-npm run build
-
-# 3. Insert test data
-npm run insert-test
-
-# 4. Start MCP server
-npm start
-```
-
-✅ Done! Database auto-created at `./modelradar.db`
-
-### Connect to Claude Desktop
-
-Add to your Claude Desktop config:
+Edit your Claude Desktop configuration file:
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -114,21 +86,230 @@ Add to your Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "ai-model-intelligence": {
-      "command": "node",
-      "args": ["/absolute/path/to/modelRadar/dist/server.js"]
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
     }
   }
 }
 ```
 
-⚠️ **Important**: Replace `/absolute/path/to/modelRadar` with your actual project path!
+### Step 3: Restart Claude Desktop
 
-Restart Claude Desktop, and you'll see **17 powerful tools** available.
+After restarting, you'll have access to **17 powerful AI model intelligence tools**! 🎉
 
-📖 **[View Complete MCP Tools Reference](./MCP_TOOLS.md)** - Detailed documentation for all tools with examples
+---
 
-📖 **For other MCP clients** (Cursor, Cline, Continue, Zed), see the complete [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
+## 💡 Usage Examples
+
+### 🔥 Find Hot Trending Models
+
+Ask Claude:
+```
+What are the trending AI models right now?
+```
+
+Claude will use the `get_hot_models` tool to show you models with the highest growth rates.
+
+### 🔍 Search for Specific Models
+
+Ask Claude:
+```
+Find me coding models with Apache 2.0 license
+```
+
+Claude will use `search_models` with filters to find matching models.
+
+### ⚖️ Compare Multiple Models
+
+Ask Claude:
+```
+Compare Qwen2.5-Coder-32B, DeepSeek-V3, and Llama-3.3-70B
+```
+
+Claude will use `compare_models_batch` to show a detailed comparison across metrics.
+
+### 🎯 Get Task Recommendations
+
+Ask Claude:
+```
+Recommend a coding model that can run on my 24GB VRAM GPU
+```
+
+Claude will use `recommend_for_task` to suggest suitable models based on your constraints.
+
+### 🚀 Check Deployment Feasibility
+
+Ask Claude:
+```
+Can I run Qwen2.5-72B on my system with 32GB VRAM?
+```
+
+Claude will use `get_deployment_guide` to analyze hardware requirements and suggest quantization options.
+
+---
+
+## 🔧 Supported MCP Clients
+
+This MCP server works with any application that supports the Model Context Protocol. Here's a comprehensive list:
+
+### 🤖 AI Assistants
+
+| Client | Platform | Configuration |
+|--------|----------|---------------|
+| **Claude Desktop** | macOS, Windows | Add to `claude_desktop_config.json` |
+| **Claude Code** | CLI, Desktop, Web, IDE Extensions | Built-in MCP support |
+| **Cherry Studio** | Cross-platform | Built-in MCP support |
+| **Open WebUI** | Web-based | MCP integration via settings |
+
+### 🛠️ AI Coding Agents
+
+| Agent | Platform | Description |
+|-------|----------|-------------|
+| **Aider** | Terminal/CLI | AI pair programming in terminal, supports MCP |
+| **OpenHands** | Web/Self-hosted | Open-source AI software engineer (formerly OpenDevin) |
+| **Void** | Desktop IDE | AI-first code editor with MCP support |
+| **Aide** | VS Code | AI development assistant with MCP integration |
+| **Devin** | Web-based | AI software engineer by Cognition AI |
+
+### 💻 IDEs & Editors
+
+| IDE/Editor | Platform | Extension/Integration |
+|------------|----------|----------------------|
+| **Cursor** | macOS, Windows, Linux | Built-in MCP support |
+| **Windsurf** | macOS, Windows, Linux | Native MCP integration |
+| **Zed** | macOS, Linux | Built-in MCP support |
+| **VS Code** | Cross-platform | Via Cline or Continue extensions |
+| **JetBrains IDEs** | Cross-platform | Via Continue plugin |
+
+### 🔌 VS Code Extensions
+
+| Extension | Description | MCP Config |
+|-----------|-------------|------------|
+| **Cline** | AI coding assistant | Add to Cline settings |
+| **Continue** | AI code assistant | Add to `continue/config.json` |
+| **RooCode** | AI pair programmer | MCP server configuration |
+
+### 📖 Configuration Examples
+
+<details>
+<summary><b>Claude Desktop</b></summary>
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Cursor</b></summary>
+
+Open Cursor Settings → Features → Enable MCP
+
+Add to MCP servers list:
+```json
+{
+  "model-radar": {
+    "command": "npx",
+    "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Cline (VS Code)</b></summary>
+
+Open Cline settings → MCP Servers
+
+Add configuration:
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Continue (VS Code/JetBrains)</b></summary>
+
+**Location**: `~/.continue/config.json` (macOS/Linux) or `%USERPROFILE%\.continue\config.json` (Windows)
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Zed Editor</b></summary>
+
+Add to Zed settings:
+```json
+{
+  "context_servers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+📖 **For detailed configuration guides**, see [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
+
+---
+
+## 📖 Complete Configuration Guide
+
+### For Other MCP Clients
+
+**Cursor, Cline, Continue, Zed**: See [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
+
+### Alternative: Install from Source
+
+If you prefer to build from source:
+
+```bash
+# Clone the repository
+git clone https://github.com/jiyi1990118/mcp-model-radar.git
+cd mcp-model-radar
+
+# Install and build
+npm install
+npm run build
+
+# Configure Claude Desktop
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"]
+    }
+  }
+}
+```
 
 ## 📦 Installation
 

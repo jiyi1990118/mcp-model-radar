@@ -1,6 +1,7 @@
 # AI 模型情报中心
 
-[![版本](https://img.shields.io/badge/版本-1.0.0-blue.svg)](https://github.com/yourusername/modelradar)
+[![版本](https://img.shields.io/badge/版本-2.0.0-blue.svg)](https://github.com/jiyi1990118/mcp-model-radar)
+[![npm](https://img.shields.io/npm/v/@npm_xiyuan/mcp-model-radar)](https://www.npmjs.com/package/@npm_xiyuan/mcp-model-radar)
 [![许可证](https://img.shields.io/badge/许可证-ISC-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org)
@@ -16,8 +17,9 @@
 
 - ✅ **零配置** - 基于 SQLite，开箱即用
 - ✅ **实时情报** - 追踪下载量、点赞数和趋势评分
-- ✅ **5个即用工具** - 集成 Claude Desktop、Cursor 等 MCP 客户端
+- ✅ **17个强大工具** - 核心工具 + 高级功能（搜索过滤、量化版本、生态分析、批量对比、任务推荐、部署指南、基准测试、趋势追踪）
 - ✅ **多维度分析** - 跨指标对比模型
+- ✅ **智能镜像选择** - 自动选择最快的 HuggingFace 镜像
 - ✅ **开源** - 可根据需求定制和扩展
 
 ## 📋 目录
@@ -37,46 +39,279 @@
 
 ## ✨ 功能特性
 
-### 核心能力
+### 17个强大的MCP工具
 
-- 🔥 **热门模型** - 按增长率追踪趋势模型
-- 🆕 **最新模型** - 发现最近发布的模型
-- 🔍 **智能搜索** - 跨元数据关键词搜索模型
-- 📊 **详细信息** - 获取完整的模型信息
-- ⚖️ **模型对比** - 多维度对比两个模型
-- 💰 **定价数据** - OpenRouter 实时定价
-- 📈 **趋势分析** - 基于增长率的评分算法（0-100分）
+| 分类 | 工具 | 描述 | 使用场景 |
+|------|------|------|---------|
+| 🔥 **发现** | `get_hot_models` | 按增长率追踪趋势模型 | "本周最火的模型有哪些？" |
+| 🆕 **发现** | `get_latest_models` | 发现最近发布的模型 | "展示新发布的模型" |
+| 🔍 **搜索** | `search_models` | 高级搜索（类型、许可证、作者、排序） | "查找Apache-2.0许可的编程模型" |
+| 📊 **详情** | `get_model_detail` | 完整模型信息及显存估算 | "告诉我Qwen2.5-Coder-32B的详细信息" |
+| ⚖️ **对比** | `compare_models` | 跨维度对比两个模型 | "对比Llama-3.3-70B和DeepSeek-V3" |
+| 🔄 **对比** | `compare_models_batch` | 同时对比2-5个模型 | "对比排名前3的编程模型" |
+| 🎯 **推荐** | `recommend_for_task` | 基于任务和约束的智能推荐 | "24GB显卡上最适合编程的模型" |
+| 🚀 **部署** | `get_deployment_guide` | 基于硬件的可行性分析 | "32GB显存能运行Qwen2.5-72B吗？" |
+| 📊 **基准** | `get_model_benchmarks` | Arena ELO评分和基准测试 | "显示Claude-3.5的基准分数" |
+| 📈 **分析** | `get_trending_changes` | 追踪排名和指标变化 | "哪些模型正在快速上升？" |
+| 📦 **量化** | `get_model_versions` | 查找GGUF/AWQ/GPTQ/MLX版本 | "显示Llama-3.3的量化版本" |
+| 🌳 **生态** | `get_model_ecosystem` | 探索基础模型及衍生版本 | "有哪些模型基于Llama-3？" |
+| 🏷️ **筛选** | `get_models_by_type` | 按类型/标签筛选模型 | "显示所有文生图模型" |
+| 📏 **筛选** | `get_models_by_size` | 按参数量范围筛选 | "7B到13B参数的模型" |
+| 📜 **筛选** | `get_models_by_license` | 按许可证类型筛选 | "显示所有MIT许可的模型" |
+| 👤 **筛选** | `get_models_by_author` | 获取特定作者/组织的模型 | "Qwen团队的所有模型" |
 
 ### 数据源
 
-- **HuggingFace** - 下载量、点赞数、元数据、标签、许可证
-- **OpenRouter** - 定价、上下文长度、提供商可用性
+| 数据源 | 提供的数据 |
+|--------|-----------|
+| 🤗 **HuggingFace** | 下载量、点赞数、元数据、标签、许可证、模型卡片 |
+| 🔄 **OpenRouter** | 实时定价、上下文长度、提供商可用性 |
+| 🏆 **LMSYS Arena** | ELO评分、排名、基准分数 *（即将推出）* |
 
 ## 🚀 快速开始
 
-### 方式一：使用 npx（最简单）
+### 步骤1：通过npm安装（推荐）
 
-克隆并一键运行：
+```bash
+npm install -g @npm_xiyuan/mcp-model-radar
+```
+
+### 步骤2：配置Claude Desktop
+
+编辑Claude Desktop配置文件：
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+
+### 步骤3：重启Claude Desktop
+
+重启后，你将拥有**17个强大的AI模型情报工具**！🎉
+
+---
+
+## 💡 使用示例
+
+### 🔥 查找热门趋势模型
+
+问Claude：
+```
+现在有哪些热门的AI模型？
+```
+
+Claude会使用`get_hot_models`工具展示增长率最高的模型。
+
+### 🔍 搜索特定模型
+
+问Claude：
+```
+找一些Apache 2.0许可的编程模型
+```
+
+Claude会使用`search_models`工具进行筛选搜索。
+
+### ⚖️ 对比多个模型
+
+问Claude：
+```
+对比Qwen2.5-Coder-32B、DeepSeek-V3和Llama-3.3-70B
+```
+
+Claude会使用`compare_models_batch`工具展示详细对比。
+
+### 🎯 获取任务推荐
+
+问Claude：
+```
+推荐一个能在24GB显卡上运行的编程模型
+```
+
+Claude会使用`recommend_for_task`工具根据约束条件推荐合适的模型。
+
+### 🚀 检查部署可行性
+
+问Claude：
+```
+32GB显存能运行Qwen2.5-72B吗？
+```
+
+Claude会使用`get_deployment_guide`工具分析硬件需求并建议量化方案。
+
+---
+
+## 🔧 支持的MCP客户端
+
+本MCP服务器可与任何支持模型上下文协议（MCP）的应用程序配合使用。以下是完整列表：
+
+### 🤖 AI助手
+
+| 客户端 | 平台 | 配置方式 |
+|--------|------|----------|
+| **Claude Desktop** | macOS, Windows | 添加到 `claude_desktop_config.json` |
+| **Claude Code** | CLI, 桌面, 网页, IDE扩展 | 内置MCP支持 |
+| **Cherry Studio** | 跨平台 | 内置MCP支持 |
+| **Open WebUI** | 网页版 | 通过设置集成MCP |
+
+### 🛠️ AI编码代理
+
+| 代理工具 | 平台 | 描述 |
+|---------|------|------|
+| **Aider** | 终端/CLI | 终端中的AI结对编程，支持MCP |
+| **OpenHands** | 网页/自托管 | 开源AI软件工程师（原名OpenDevin） |
+| **Void** | 桌面IDE | AI优先的代码编辑器，支持MCP |
+| **Aide** | VS Code | AI开发助手，集成MCP |
+| **Devin** | 网页版 | Cognition AI的AI软件工程师 |
+
+### 💻 IDE与编辑器
+
+| IDE/编辑器 | 平台 | 扩展/集成方式 |
+|-----------|------|-------------|
+| **Cursor** | macOS, Windows, Linux | 内置MCP支持 |
+| **Windsurf** | macOS, Windows, Linux | 原生MCP集成 |
+| **Zed** | macOS, Linux | 内置MCP支持 |
+| **VS Code** | 跨平台 | 通过Cline或Continue扩展 |
+| **JetBrains IDEs** | 跨平台 | 通过Continue插件 |
+
+### 🔌 VS Code扩展
+
+| 扩展 | 描述 | MCP配置 |
+|------|------|---------|
+| **Cline** | AI编程助手 | 添加到Cline设置 |
+| **Continue** | AI代码助手 | 添加到 `continue/config.json` |
+| **RooCode** | AI结对编程 | MCP服务器配置 |
+
+### 📖 配置示例
+
+<details>
+<summary><b>Claude Desktop</b></summary>
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Cursor</b></summary>
+
+打开Cursor设置 → Features → 启用MCP
+
+添加到MCP服务器列表：
+```json
+{
+  "model-radar": {
+    "command": "npx",
+    "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Cline (VS Code)</b></summary>
+
+打开Cline设置 → MCP服务器
+
+添加配置：
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Continue (VS Code/JetBrains)</b></summary>
+
+**位置**: `~/.continue/config.json` (macOS/Linux) 或 `%USERPROFILE%\.continue\config.json` (Windows)
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Zed编辑器</b></summary>
+
+添加到Zed设置：
+```json
+{
+  "context_servers": {
+    "model-radar": {
+      "command": "npx",
+      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
+    }
+  }
+}
+```
+</details>
+
+📖 **详细配置指南**，请查看[MCP配置指南](./MCP_CONFIG_GUIDE.md)
+
+---
+
+---
+
+## 📖 完整配置指南
+
+### 其他MCP客户端
+
+**Cursor、Cline、Continue、Zed**: 查看[MCP配置指南](./MCP_CONFIG_GUIDE.md)
+
+### 备选方案：从源码安装
+
+如果你更喜欢从源码构建：
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/modelradar.git
-cd modelradar
+git clone https://github.com/jiyi1990118/mcp-model-radar.git
+cd mcp-model-radar
 
-# 初始化并启动（自动安装依赖、构建和设置数据库）
-npx modelradar init
-npx modelradar start
+# 安装并构建
+npm install
+npm run build
+
+# 配置Claude Desktop
+{
+  "mcpServers": {
+    "model-radar": {
+      "command": "node",
+      "args": ["/绝对路径/到/mcp-model-radar/dist/server.js"]
+    }
+  }
+}
 ```
-
-如果包已发布到 npm：
-
-```bash
-npx modelradar init
-```
-
-### 方式二：手动设置
-
-使用 SQLite 零配置在 2 分钟内启动：
 
 ```bash
 # 1. 安装依赖
