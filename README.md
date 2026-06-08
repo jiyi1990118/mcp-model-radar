@@ -88,7 +88,7 @@ Edit your Claude Desktop configuration file:
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -203,7 +203,7 @@ This MCP server works with any application that supports the Model Context Proto
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -237,7 +237,7 @@ Add configuration:
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -254,7 +254,7 @@ Add configuration:
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }

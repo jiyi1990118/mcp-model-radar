@@ -88,7 +88,7 @@ npm install -g @npm_xiyuan/mcp-model-radar
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -203,7 +203,7 @@ Claude会使用`get_deployment_guide`工具分析硬件需求并建议量化方�
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -237,7 +237,7 @@ Claude会使用`get_deployment_guide`工具分析硬件需求并建议量化方�
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
@@ -254,7 +254,7 @@ Claude会使用`get_deployment_guide`工具分析硬件需求并建议量化方�
   "mcpServers": {
     "model-radar": {
       "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar", "mcp-model-radar"]
+      "args": ["-y", "mcp-model-radar"]
     }
   }
 }
