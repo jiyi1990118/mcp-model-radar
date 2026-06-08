@@ -9,7 +9,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsc && npm run copy-sql",
+    "build": "tsc && npm run copy-sql && chmod +x dist/server.js",
     "copy-sql": "mkdir -p dist/db && cp src/db/*.sql dist/db/",
     "start": "node dist/server.js",
     "dev": "tsx src/server.ts",
