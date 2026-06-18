@@ -1,5 +1,4 @@
-import db from '../db/connection-sqlite.js';
-import { getTrendingChanges as dbGetChanges } from '../db/queries-sqlite.js';
+import { getTrendingChanges as dbGetChanges } from '../db/index.js';
 
 export async function getTrendingChanges(args: any) {
   const period = args.period || '7d';
@@ -16,9 +15,9 @@ export async function getTrendingChanges(args: any) {
     throw new Error(`Invalid metric. Must be one of: ${validMetrics.join(', ')}`);
   }
 
-  console.log(`[get_trending_changes] Analyzing ${metric} changes over ${period}`);
+  console.error(`[get_trending_changes] Analyzing ${metric} changes over ${period}`);
 
-  const changes = dbGetChanges(db, period, metric);
+  const changes = await dbGetChanges(period, metric);
 
   const rising = changes
     .filter((c: any) => c.absolute_change > 0)

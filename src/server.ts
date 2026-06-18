@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+import http from 'node:http';
+import { randomUUID } from 'node:crypto';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { getHotModels } from './tools/get-hot-models.js';
 import { getLatestModels } from './tools/get-latest-models.js';
@@ -18,13 +21,17 @@ import { recommendForTask } from './tools/recommend-for-task.js';
 import { getDeploymentGuide } from './tools/get-deployment-guide.js';
 import { getModelBenchmarks } from './tools/get-model-benchmarks.js';
 import { getTrendingChanges } from './tools/get-trending-changes.js';
+import { getGithubTrendingHandler } from './tools/get-github-trending.js';
+import { getDarkhorseModelsHandler } from './tools/get-darkhorse-models.js';
+import { getModelReportHandler } from './tools/get-model-report.js';
+import { getCommunityHeatHandler } from './tools/get-community-heat.js';
 import { startScheduler } from './scheduler/collector-jobs.js';
 import { triggerSyncIfNeeded } from './utils/sync-manager.js';
 
 const server = new Server(
   {
     name: 'ai-model-intelligence',
-    version: '0.1.0'
+    version: '3.0.0'
   },
   {
     capabilities: {
@@ -195,7 +202,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                 enum: ['downloads', 'likes', 'cost', 'context', 'performance']
               },
               description: 'Dimensions to compare (default: all)',
-              default: ['performance', 'cost', 'vram', 'context']
+              default: ['performance', 'cost', 'context']
             }
           },
           required: ['model_ids']
@@ -279,66 +286,201 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             }
           }
         }
+      },
+      {
+        name: 'get_github_trending',
+        description: 'Get trending AI-related GitHub repositories sorted by stars',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: { type: 'number', description: 'Number of repos to return', default: 20 },
+            language: { type: 'string', description: 'Filter by programming language (e.g., Python)' },
+            topic: { type: 'string', description: 'Filter by topic (e.g., llm, transformer)' }
+          }
+        }
+      },
+      {
+        name: 'get_darkhorse_models',
+        description: 'Detect unexpectedly surging "dark horse" models with high breakout potential',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: { type: 'number', description: 'Number of dark horse candidates to return', default: 10 }
+          }
+        }
+      },
+      {
+        name: 'get_model_report',
+        description: 'Generate a weekly or monthly AI model ecosystem trend report',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            period: {
+              type: 'string',
+              enum: ['weekly', 'monthly'],
+              description: 'Report period',
+              default: 'weekly'
+            }
+          }
+        }
+      },
+      {
+        name: 'get_community_heat',
+        description: 'Analyze community discussions and sentiment about AI models across Reddit',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            model_id: { type: 'string', description: 'Specific model ID to analyze (optional, defaults to top trending)' },
+            subreddit: { type: 'string', description: 'Specific subreddit (optional, defaults to all AI subreddits)' },
+            days: { type: 'number', description: 'Days to look back', default: 7 },
+            limit: { type: 'number', description: 'Max posts to analyze', default: 25 }
+          }
+        }
       }
     ]
   };
 });
 
+// Tool handler registry — O(1) lookup instead of if/else chain
+const toolHandlers: Record<string, (args: any) => Promise<any>> = {
+  get_hot_models: (a) => getHotModels(a),
+  get_latest_models: (a) => getLatestModels(a),
+  search_models: (a) => searchModels(a),
+  get_model_detail: (a) => getModelDetail(a),
+  compare_models: (a) => compareModels(a),
+  get_models_by_type: (a) => getModelsByTypeHandler(a),
+  get_models_by_size: (a) => getModelsBySizeHandler(a),
+  get_models_by_license: (a) => getModelsByLicenseHandler(a),
+  get_models_by_author: (a) => getModelsByAuthorHandler(a),
+  get_model_versions: (a) => getModelVersions(a),
+  get_model_ecosystem: (a) => getModelEcosystem(a),
+  compare_models_batch: (a) => compareModelsBatch(a),
+  recommend_for_task: (a) => recommendForTask(a),
+  get_deployment_guide: (a) => getDeploymentGuide(a),
+  get_model_benchmarks: (a) => getModelBenchmarks(a),
+  get_trending_changes: (a) => getTrendingChanges(a),
+  get_github_trending: (a) => getGithubTrendingHandler(a),
+  get_darkhorse_models: (a) => getDarkhorseModelsHandler(a),
+  get_model_report: (a) => getModelReportHandler(a),
+  get_community_heat: (a) => getCommunityHeatHandler(a),
+};
+
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+  const safeArgs = args || {};
 
   try {
-    let result;
-    if (name === 'get_hot_models') {
-      result = await getHotModels(args || {});
-    } else if (name === 'get_latest_models') {
-      result = await getLatestModels(args || {});
-    } else if (name === 'search_models') {
-      result = await searchModels(args || {});
-    } else if (name === 'get_model_detail') {
-      result = await getModelDetail(args || {});
-    } else if (name === 'compare_models') {
-      result = await compareModels(args || {});
-    } else if (name === 'get_models_by_type') {
-      result = await getModelsByTypeHandler(args as any);
-    } else if (name === 'get_models_by_size') {
-      result = await getModelsBySizeHandler(args as any);
-    } else if (name === 'get_models_by_license') {
-      result = await getModelsByLicenseHandler(args as any);
-    } else if (name === 'get_models_by_author') {
-      result = await getModelsByAuthorHandler(args as any);
-    } else if (name === 'get_model_versions') {
-      result = await getModelVersions(args || {});
-    } else if (name === 'get_model_ecosystem') {
-      result = await getModelEcosystem(args || {});
-    } else if (name === 'compare_models_batch') {
-      result = await compareModelsBatch(args || {});
-    } else if (name === 'recommend_for_task') {
-      result = await recommendForTask(args || {});
-    } else if (name === 'get_deployment_guide') {
-      result = await getDeploymentGuide(args || {});
-    } else if (name === 'get_model_benchmarks') {
-      result = await getModelBenchmarks(args || {});
-    } else if (name === 'get_trending_changes') {
-      result = await getTrendingChanges(args || {});
-    } else {
+    const handler = toolHandlers[name];
+    if (!handler) {
       throw new Error(`Unknown tool: ${name}`);
     }
 
-    // Trigger background sync if needed (non-blocking)
-    triggerSyncIfNeeded();
+    const result = await handler(safeArgs);
+
+    // Fire-and-forget background sync (must not affect the response)
+    triggerSyncIfNeeded().catch(() => {});
 
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
   } catch (error) {
-    return { content: [{ type: 'text', text: `Error: ${error}` }], isError: true };
+    const message = error instanceof Error ? error.message : String(error);
+    return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
   }
 });
 
+/**
+ * Determine transport mode:
+ * - "http": Streamable HTTP (shared process, multi-client) — triggered by -p/--port flag
+ * - "stdio": Standard I/O (default, one process per client)
+ *
+ * Usage:
+ *   mcp-model-radar              → stdio mode (default)
+ *   mcp-model-radar -p 3100      → HTTP mode on port 3100
+ *   mcp-model-radar --port 3100  → HTTP mode on port 3100
+ */
+function parseCliArgs(): { mode: 'http' | 'stdio'; port: number } {
+  const args = process.argv.slice(2);
+  const portIdx = args.findIndex(a => a === '-p' || a === '--port');
+
+  if (portIdx !== -1) {
+    const port = parseInt(args[portIdx + 1], 10) || 3100;
+    return { mode: 'http', port };
+  }
+
+  // Fallback: env vars for backward compatibility
+  if (process.env.MCP_TRANSPORT === 'http') {
+    return { mode: 'http', port: parseInt(process.env.MCP_PORT || '3100', 10) };
+  }
+
+  return { mode: 'stdio', port: 0 };
+}
+
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('AI Model Intelligence MCP Server running on stdio');
-  startScheduler();
+  const { mode, port } = parseCliArgs();
+
+  if (mode === 'http') {
+    // Streamable HTTP mode — shared process for multiple MCP clients
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => randomUUID(),
+    });
+
+    // Connect the MCP server to the transport
+    await server.connect(transport);
+
+    const httpServer = http.createServer(async (req, res) => {
+      // Handle CORS preflight
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Mcp-Session-Id',
+        });
+        res.end();
+        return;
+      }
+
+      // Set CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      try {
+        await transport.handleRequest(req, res);
+      } catch (error) {
+        console.error('[HTTP] Request handling error:', error);
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end('Internal Server Error');
+        }
+      }
+    });
+
+    httpServer.listen(port, () => {
+      console.error(`AI Model Intelligence MCP Server (HTTP) listening on http://localhost:${port}`);
+      startScheduler();
+    });
+
+    // Graceful shutdown for HTTP
+    const shutdown = () => {
+      console.error('Shutting down HTTP server...');
+      httpServer.close(() => process.exit(0));
+    };
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+  } else {
+    // Stdio mode — traditional one-process-per-client (default)
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error('AI Model Intelligence MCP Server running on stdio');
+    startScheduler();
+
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+      console.error('Shutting down...');
+      process.exit(0);
+    });
+    process.on('SIGTERM', () => {
+      console.error('Shutting down...');
+      process.exit(0);
+    });
+  }
 }
 
 main().catch((error) => {

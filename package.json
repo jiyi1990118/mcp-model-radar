@@ -1,6 +1,6 @@
 {
   "name": "@npm_xiyuan/mcp-model-radar",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "🚀 Real-time AI model intelligence MCP server - Track trends, compare models, get smart recommendations from HuggingFace, OpenRouter & Arena",
   "main": "dist/server.js",
   "bin": {
@@ -12,7 +12,9 @@
     "build": "tsc && npm run copy-sql && chmod +x dist/server.js",
     "copy-sql": "mkdir -p dist/db && cp src/db/*.sql dist/db/",
     "start": "node dist/server.js",
+    "start:http": "node dist/server.js -p 3100",
     "dev": "tsx src/server.ts",
+    "dev:http": "tsx src/server.ts -p 3100",
     "seed": "tsx src/scripts/seed-initial-data.ts",
     "test": "node dist/test-tools.js",
     "insert-test": "npx tsx src/insert-test-data.ts",

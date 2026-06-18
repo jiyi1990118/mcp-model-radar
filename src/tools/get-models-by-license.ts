@@ -1,4 +1,4 @@
-import { getModelsByLicense } from '../db/queries-sqlite.js';
+import { getModelsByLicense } from '../db/index.js';
 
 interface GetModelsByLicenseArgs {
   license: string;
@@ -8,7 +8,7 @@ interface GetModelsByLicenseArgs {
 export default async function getModelsByLicenseHandler(args: GetModelsByLicenseArgs) {
   console.error(`[get_models_by_license] Fetching models with license "${args.license}", limit ${args.limit || 20}...`);
 
-  const models = getModelsByLicense(args.license, args.limit || 20);
+  const models = await getModelsByLicense(args.license, args.limit || 20);
 
   console.error(`[get_models_by_license] Successfully returned ${models.length} models`);
 

@@ -4,10 +4,12 @@ export async function getLatestModels(args: any) {
   const hours = args.hours || 24;
   const cutoffDate = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 
-  console.log(`[get_latest_models] Fetching models from last ${hours} hours (since ${cutoffDate})`);
+  console.error(`[get_latest_models] Fetching models from last ${hours} hours (since ${cutoffDate})`);
 
   try {
-    const models = await getModels(100, 'mm.created_at DESC');
+    // Fetch up to 100 recent models, then filter by date in SQL
+    // Note: SQLite stores dates as ISO strings, so string comparison works correctly
+    const models = await getModels(100, 'm.created_at DESC');
 
     const filtered = models.filter((m: any) => m.created_at && m.created_at > cutoffDate);
 
@@ -24,7 +26,7 @@ export async function getLatestModels(args: any) {
       tags: m.tags
     }));
 
-    console.log(`[get_latest_models] Found ${result.length} models released in last ${hours} hours`);
+    console.error(`[get_latest_models] Found ${result.length} models released in last ${hours} hours`);
 
     return {
       success: true,

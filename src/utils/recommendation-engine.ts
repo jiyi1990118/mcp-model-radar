@@ -60,7 +60,6 @@ export function scoreModelForTask(model: any, task: string, constraints: TaskCon
   if (!profile) return 0;
 
   let score = 0;
-  const reasons: string[] = [];
 
   // Check hard constraints
   if (constraints.max_vram_gb) {
@@ -91,22 +90,29 @@ export function scoreModelForTask(model: any, task: string, constraints: TaskCon
   const tagScore = matchingTags.length / profile.preferred_tags.length;
 
   // Downloads score (normalized to 0-1)
-  const downloadScore = Math.min(model.downloads / 1000000, 1);
+  const downloadScore = Math.min((model.downloads || 0) / 1000000, 1);
 
   // Trend score (already 0-100, normalize to 0-1)
   const trendScore = (model.trend_score || 0) / 100;
 
   // Cost score (lower is better, normalize to 0-1)
-  const totalCost = (model.input_cost || 1) + (model.output_cost || 1);
-  const costScore = Math.max(0, 1 - (totalCost / 10));
+  // Models without pricing data get a neutral score (0.5) instead of being penalized
+  const hasCost = model.input_cost != null || model.output_cost != null;
+  const totalCost = (model.input_cost || 0) + (model.output_cost || 0);
+  const costScore = hasCost ? Math.max(0, 1 - (totalCost / 10)) : 0.5;
 
-  // Weighted score
+  // Weighted score: tag matching is 30%, downloads/trend/cost use profile weights
+  // Normalize so total always sums to 1.0
+  const TAG_WEIGHT = 0.3;
+  const profileWeightSum = profile.weight_downloads + profile.weight_trend + profile.weight_cost;
+  const totalWeight = TAG_WEIGHT + profileWeightSum;
+
   score = (
-    tagScore * 0.3 +
+    tagScore * TAG_WEIGHT +
     downloadScore * profile.weight_downloads +
     trendScore * profile.weight_trend +
     costScore * profile.weight_cost
-  ) * 100;
+  ) / totalWeight * 100;
 
   return score;
 }

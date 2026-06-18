@@ -9,7 +9,7 @@ export async function getModelBenchmarks(args: any) {
     throw new Error('model_id is required');
   }
 
-  console.log(`[get_model_benchmarks] Fetching benchmarks for: ${modelId}`);
+  console.error(`[get_model_benchmarks] Fetching benchmarks for: ${modelId}`);
 
   const model = await getModelById(modelId);
   if (!model) {

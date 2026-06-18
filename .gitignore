@@ -1,7 +1,17 @@
 node_modules/
 dist/
 .env
+.env.local
+.env.production
+.env.*.local
 *.log
 .DS_Store
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
+modelradar.db
+modelradar.db-journal
+.sync-state.json
+.mirror-cache.json
+coverage/

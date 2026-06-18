@@ -3,7 +3,7 @@ import { getModels } from '../db/index.js';
 export async function getHotModels(args: any) {
   const limit = args.limit || 20;
 
-  console.log(`[get_hot_models] Fetching top ${limit} trending models...`);
+  console.error(`[get_hot_models] Fetching top ${limit} trending models...`);
 
   try {
     const models = await getModels(limit, 'mm.trend_score DESC NULLS LAST');
@@ -21,7 +21,7 @@ export async function getHotModels(args: any) {
       created_at: m.created_at
     }));
 
-    console.log(`[get_hot_models] Successfully returned ${result.length} models`);
+    console.error(`[get_hot_models] Successfully returned ${result.length} models`);
 
     return {
       success: true,

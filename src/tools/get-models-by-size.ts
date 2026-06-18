@@ -1,4 +1,4 @@
-import { getModelsBySize } from '../db/queries-sqlite.js';
+import { getModelsBySize } from '../db/index.js';
 
 interface GetModelsBySizeArgs {
   minParams?: string;
@@ -9,7 +9,7 @@ interface GetModelsBySizeArgs {
 export default async function getModelsBySizeHandler(args: GetModelsBySizeArgs) {
   console.error(`[get_models_by_size] Fetching models with size range [${args.minParams || 'any'}, ${args.maxParams || 'any'}], limit ${args.limit || 20}...`);
 
-  const models = getModelsBySize(args.minParams || null, args.maxParams || null, args.limit || 20);
+  const models = await getModelsBySize(args.minParams || null, args.maxParams || null, args.limit || 20);
 
   console.error(`[get_models_by_size] Successfully returned ${models.length} models`);
 

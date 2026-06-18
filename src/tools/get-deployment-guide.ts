@@ -10,7 +10,7 @@ export async function getDeploymentGuide(args: any) {
     throw new Error('model_id is required');
   }
 
-  console.log(`[get_deployment_guide] Analyzing deployment for: ${modelId}`);
+  console.error(`[get_deployment_guide] Analyzing deployment for: ${modelId}`);
 
   const model = await getModelById(modelId);
   if (!model) {

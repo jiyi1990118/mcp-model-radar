@@ -37,8 +37,16 @@ CREATE TABLE IF NOT EXISTS model_pricing (
   output_cost REAL,
   context_length INTEGER,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (model_id) REFERENCES models(model_id) ON DELETE CASCADE
+  FOREIGN KEY (model_id) REFERENCES models(model_id) ON DELETE CASCADE,
+  UNIQUE(model_id, provider)
 );
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_models_author ON models(author);
+CREATE INDEX IF NOT EXISTS idx_models_updated ON models(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_metrics_snapshot ON model_metrics(snapshot_date DESC);
+CREATE INDEX IF NOT EXISTS idx_metrics_trend ON model_metrics(trend_score DESC);
+CREATE INDEX IF NOT EXISTS idx_pricing_provider ON model_pricing(provider);
 
 -- Historical metrics tracking table
 CREATE TABLE IF NOT EXISTS metrics_history (
@@ -49,14 +57,27 @@ CREATE TABLE IF NOT EXISTS metrics_history (
   trend_score REAL DEFAULT 0,
   arena_rank INTEGER,
   recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (model_id) REFERENCES models(model_id)
+  FOREIGN KEY (model_id) REFERENCES models(model_id) ON DELETE CASCADE
 );
 
--- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_models_author ON models(author);
-CREATE INDEX IF NOT EXISTS idx_models_updated ON models(updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_metrics_snapshot ON model_metrics(snapshot_date DESC);
-CREATE INDEX IF NOT EXISTS idx_metrics_trend ON model_metrics(trend_score DESC);
-CREATE INDEX IF NOT EXISTS idx_pricing_provider ON model_pricing(provider);
 CREATE INDEX IF NOT EXISTS idx_metrics_history_model ON metrics_history(model_id);
 CREATE INDEX IF NOT EXISTS idx_metrics_history_recorded ON metrics_history(recorded_at);
+
+-- GitHub repositories tracking table
+CREATE TABLE IF NOT EXISTS github_repos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  repo_full_name TEXT NOT NULL UNIQUE,
+  model_id TEXT,
+  stars INTEGER DEFAULT 0,
+  forks INTEGER DEFAULT 0,
+  open_issues INTEGER DEFAULT 0,
+  description TEXT,
+  language TEXT,
+  topics TEXT,
+  pushed_at TEXT,
+  collected_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (model_id) REFERENCES models(model_id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_github_stars ON github_repos(stars DESC);
+CREATE INDEX IF NOT EXISTS idx_github_model ON github_repos(model_id);

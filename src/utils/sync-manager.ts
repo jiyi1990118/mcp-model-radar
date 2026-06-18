@@ -1,11 +1,18 @@
 import fs from 'fs';
-import path from 'path';
+import { homedir } from 'os';
+import { join } from 'path';
 import { collectHuggingFaceModels } from '../collectors/huggingface.js';
 import { collectOpenRouterPricing } from '../collectors/openrouter.js';
 import { calculateTrendScores } from '../analysis/trend-score.js';
 
-const SYNC_STATE_FILE = '.sync-state.json';
+const DATA_DIR = join(homedir(), '.mcp-model-radar');
+const SYNC_STATE_FILE = join(DATA_DIR, '.sync-state.json');
 const SYNC_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 interface SyncState {
   lastSyncTime: string;
@@ -55,28 +62,39 @@ export async function triggerSyncIfNeeded() {
   const state = loadSyncState();
 
   if (!shouldSync(state.lastSyncTime)) {
-    console.log('[Sync] Recently synced, skipping');
+    console.error('[Sync] Recently synced, skipping');
     return;
   }
 
-  console.log('[Sync] Starting background sync...');
+  console.error('[Sync] Starting background sync...');
 
   // Run in background, don't block
   setImmediate(async () => {
     try {
+      const tasks: Promise<void>[] = [];
+
       // Sync HuggingFace data
       if (shouldSync(state.lastHFSync)) {
-        await collectHuggingFaceModels();
-        state.lastHFSync = new Date().toISOString();
+        tasks.push(
+          collectHuggingFaceModels().then(() => {
+            state.lastHFSync = new Date().toISOString();
+          })
+        );
       }
 
       // Sync OpenRouter pricing
       if (shouldSync(state.lastOpenRouterSync)) {
-        await collectOpenRouterPricing();
-        state.lastOpenRouterSync = new Date().toISOString();
+        tasks.push(
+          collectOpenRouterPricing().then(() => {
+            state.lastOpenRouterSync = new Date().toISOString();
+          })
+        );
       }
 
-      // Calculate trends
+      // Run independent collections in parallel
+      await Promise.all(tasks);
+
+      // Calculate trends (depends on fresh data from both sources)
       if (shouldSync(state.lastTrendCalc)) {
         await calculateTrendScores();
         state.lastTrendCalc = new Date().toISOString();
@@ -84,7 +102,7 @@ export async function triggerSyncIfNeeded() {
 
       state.lastSyncTime = new Date().toISOString();
       saveSyncState(state);
-      console.log('[Sync] Background sync completed');
+      console.error('[Sync] Background sync completed');
     } catch (error: any) {
       console.error('[Sync] Background sync failed:', error.message);
     }

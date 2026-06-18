@@ -16,13 +16,13 @@ function estimateVRAM(params: string | null): any {
 export async function getModelDetail(args: any) {
   const model_id = args.model_id;
 
-  console.log(`[get_model_detail] Fetching details for model: "${model_id}"`);
+  console.error(`[get_model_detail] Fetching details for model: "${model_id}"`);
 
   try {
     const model = await getModelById(model_id);
 
     if (!model) {
-      console.warn(`[get_model_detail] Model not found: "${model_id}"`);
+      console.error(`[get_model_detail] Model not found: "${model_id}"`);
       throw new Error(`Model not found: ${model_id}`);
     }
 
@@ -32,7 +32,7 @@ export async function getModelDetail(args: any) {
       const versionResult = await getModelVersions({ model_id });
       versions = versionResult.data;
     } catch (e) {
-      console.warn('[get_model_detail] Failed to fetch versions:', e);
+      console.error('[get_model_detail] Failed to fetch versions:', e);
     }
 
     const detail = {
@@ -63,7 +63,7 @@ export async function getModelDetail(args: any) {
       }
     };
 
-    console.log(`[get_model_detail] Successfully fetched details for "${model.name}" by ${model.author}`);
+    console.error(`[get_model_detail] Successfully fetched details for "${model.name}" by ${model.author}`);
 
     return {
       success: true,

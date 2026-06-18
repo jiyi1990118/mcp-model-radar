@@ -228,3 +228,54 @@ export function getTrendingChanges(db: any, period: string = '7d', metric: strin
 
   return db.prepare(query).all(days + 1, days);
 }
+
+// === GitHub Repos ===
+
+export function upsertGithubRepo(repo: any) {
+  const stmt = db.prepare(`
+    INSERT INTO github_repos (repo_full_name, model_id, stars, forks, open_issues, description, language, topics, pushed_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(repo_full_name) DO UPDATE SET
+      model_id = excluded.model_id,
+      stars = excluded.stars,
+      forks = excluded.forks,
+      open_issues = excluded.open_issues,
+      description = excluded.description,
+      language = excluded.language,
+      topics = excluded.topics,
+      pushed_at = excluded.pushed_at,
+      collected_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(
+    repo.repo_full_name, repo.model_id, repo.stars, repo.forks,
+    repo.open_issues, repo.description, repo.language,
+    JSON.stringify(repo.topics || []), repo.pushed_at
+  );
+}
+
+export function getGithubTrending(limit: number = 20, language?: string, topic?: string) {
+  const conditions: string[] = [];
+  const params: any[] = [];
+
+  if (language) {
+    conditions.push('language = ?');
+    params.push(language);
+  }
+  if (topic) {
+    conditions.push('topics LIKE ?');
+    params.push(`%${topic}%`);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const query = `
+    SELECT *
+    FROM github_repos
+    ${whereClause}
+    ORDER BY stars DESC
+    LIMIT ?
+  `;
+  params.push(limit);
+
+  return db.prepare(query).all(...params);
+}

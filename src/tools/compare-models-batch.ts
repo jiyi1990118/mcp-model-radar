@@ -2,7 +2,7 @@ import { getModelById } from '../db/index.js';
 
 export async function compareModelsBatch(args: any) {
   const modelIds = args.model_ids;
-  const dimensions = args.dimensions || ['performance', 'cost', 'vram', 'context'];
+  const dimensions = args.dimensions || ['performance', 'cost', 'context'];
 
   if (!modelIds || !Array.isArray(modelIds)) {
     throw new Error('model_ids must be an array');
@@ -12,7 +12,7 @@ export async function compareModelsBatch(args: any) {
     throw new Error('Must compare between 2 and 5 models');
   }
 
-  console.log(`[compare_models_batch] Comparing ${modelIds.length} models`);
+  console.error(`[compare_models_batch] Comparing ${modelIds.length} models`);
 
   const models = await Promise.all(
     modelIds.map(id => getModelById(id))
@@ -68,14 +68,19 @@ function buildComparisonMatrix(models: any[], dimensions: string[]) {
 
   if (dimensions.includes('cost')) {
     const sorted = [...models].sort((a, b) => {
-      const costA = (a.input_cost || 999) + (a.output_cost || 999);
-      const costB = (b.input_cost || 999) + (b.output_cost || 999);
+      const aHasCost = a.input_cost != null || a.output_cost != null;
+      const bHasCost = b.input_cost != null || b.output_cost != null;
+      if (!aHasCost && !bHasCost) return 0;
+      if (!aHasCost) return 1;
+      if (!bHasCost) return -1;
+      const costA = (a.input_cost || 0) + (a.output_cost || 0);
+      const costB = (b.input_cost || 0) + (b.output_cost || 0);
       return costA - costB;
     });
     matrix.cost = sorted.map((m, i) => ({
       rank: i + 1,
       model_id: m.model_id,
-      value: `$${m.input_cost || 'N/A'}/$${m.output_cost || 'N/A'}`,
+      value: `$${m.input_cost ?? 'N/A'}/$${m.output_cost ?? 'N/A'}`,
       winner: i === 0
     }));
   }

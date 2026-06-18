@@ -97,3 +97,101 @@ export async function getModelsByAuthor(author: string, limit: number = 20) {
   `;
   return (await pool.query(query, [author, limit])).rows;
 }
+
+// === GitHub Repos ===
+
+export async function upsertGithubRepo(repo: any) {
+  const query = `
+    INSERT INTO github_repos (repo_full_name, model_id, stars, forks, open_issues, description, language, topics, pushed_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    ON CONFLICT (repo_full_name) DO UPDATE SET
+      model_id = EXCLUDED.model_id,
+      stars = EXCLUDED.stars,
+      forks = EXCLUDED.forks,
+      open_issues = EXCLUDED.open_issues,
+      description = EXCLUDED.description,
+      language = EXCLUDED.language,
+      topics = EXCLUDED.topics,
+      pushed_at = EXCLUDED.pushed_at,
+      collected_at = NOW()
+    RETURNING *;
+  `;
+  const values = [repo.repo_full_name, repo.model_id, repo.stars, repo.forks, repo.open_issues, repo.description, repo.language, repo.topics, repo.pushed_at];
+  return (await pool.query(query, values)).rows[0];
+}
+
+export async function getGithubTrending(limit: number = 20, language?: string, topic?: string) {
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIdx = 1;
+
+  if (language) {
+    conditions.push(`language = $${paramIdx++}`);
+    params.push(language);
+  }
+  if (topic) {
+    conditions.push(`$${paramIdx++} = ANY(topics)`);
+    params.push(topic);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const query = `
+    SELECT *
+    FROM github_repos
+    ${whereClause}
+    ORDER BY stars DESC
+    LIMIT $${paramIdx}
+  `;
+  params.push(limit);
+
+  return (await pool.query(query, params)).rows;
+}
+
+export async function recordMetricsSnapshot(db: any) {
+  const query = `
+    INSERT INTO metrics_history (model_id, downloads, likes, trend_score, arena_rank)
+    SELECT m.model_id, mm.downloads, mm.likes, mm.trend_score, NULL
+    FROM models m
+    JOIN LATERAL (
+      SELECT downloads, likes, trend_score FROM model_metrics
+      WHERE model_id = m.model_id
+      ORDER BY snapshot_date DESC LIMIT 1
+    ) mm ON true
+  `;
+  return db.query(query);
+}
+
+export async function getTrendingChanges(period: string = '7d', metric: string = 'trend_score') {
+  const days = period === '24h' ? 1 : period === '7d' ? 7 : 30;
+  const allowedMetrics = ['downloads', 'likes', 'trend_score'];
+  const safeMetric = allowedMetrics.includes(metric) ? metric : 'trend_score';
+
+  const query = `
+    WITH recent AS (
+      SELECT m.model_id, mm.${safeMetric} as current_value
+      FROM models m
+      JOIN LATERAL (
+        SELECT ${safeMetric} FROM model_metrics
+        WHERE model_id = m.model_id
+        ORDER BY snapshot_date DESC LIMIT 1
+      ) mm ON true
+    ),
+    historical AS (
+      SELECT model_id, AVG(${safeMetric}) as past_value
+      FROM metrics_history
+      WHERE recorded_at BETWEEN NOW() - INTERVAL '1 day' * $1 AND NOW() - INTERVAL '1 day' * $2
+      GROUP BY model_id
+    )
+    SELECT r.model_id, m.name, m.author,
+      r.current_value, COALESCE(h.past_value, r.current_value) as past_value,
+      ROUND(((r.current_value - COALESCE(h.past_value, r.current_value)) / NULLIF(COALESCE(h.past_value, 1), 0)) * 100, 2) as growth_rate,
+      (r.current_value - COALESCE(h.past_value, r.current_value)) as absolute_change
+    FROM recent r
+    LEFT JOIN historical h ON r.model_id = h.model_id
+    JOIN models m ON r.model_id = m.model_id
+    WHERE r.current_value > 0
+    ORDER BY absolute_change DESC LIMIT 50
+  `;
+  return (await pool.query(query, [days + 1, days])).rows;
+}

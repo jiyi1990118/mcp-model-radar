@@ -1,4 +1,4 @@
-import { getModelsByType } from '../db/queries-sqlite.js';
+import { getModelsByType } from '../db/index.js';
 
 interface GetModelsByTypeArgs {
   type: string;
@@ -8,7 +8,7 @@ interface GetModelsByTypeArgs {
 export default async function getModelsByTypeHandler(args: GetModelsByTypeArgs) {
   console.error(`[get_models_by_type] Fetching models with type "${args.type}", limit ${args.limit || 20}...`);
 
-  const models = getModelsByType(args.type, args.limit || 20);
+  const models = await getModelsByType(args.type, args.limit || 20);
 
   console.error(`[get_models_by_type] Successfully returned ${models.length} models`);
 

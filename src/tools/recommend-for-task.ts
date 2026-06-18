@@ -16,7 +16,7 @@ export async function recommendForTask(args: any) {
     throw new Error(`Invalid task. Must be one of: ${validTasks.join(', ')}`);
   }
 
-  console.log(`[recommend_for_task] Finding models for task: ${task}`);
+  console.error(`[recommend_for_task] Finding models for task: ${task}`);
 
   // Get candidate models (top 100 by trend score)
   const candidates = await dbSearch('', {}, 'trend_score', 100);

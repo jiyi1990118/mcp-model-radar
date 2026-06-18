@@ -1,7 +1,15 @@
 import fs from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
 
-const MIRROR_CACHE_FILE = '.mirror-cache.json';
+const DATA_DIR = join(homedir(), '.mcp-model-radar');
+const MIRROR_CACHE_FILE = join(DATA_DIR, '.mirror-cache.json');
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 const MIRROR_POOL = [
   'https://hf-mirror.com/api',
@@ -50,7 +58,14 @@ function saveCache(mirror: string) {
 
 export async function getFastestMirror(): Promise<string> {
   const cached = loadCache();
-  if (cached) return cached.fastest;
+  if (cached) {
+    // Verify the cached mirror is still fast (quick health check)
+    const healthTime = await testMirror(cached.fastest);
+    if (healthTime < 10000) {
+      return cached.fastest;
+    }
+    console.error('[Mirror Pool] Cached mirror is slow/unavailable, re-testing...');
+  }
 
   console.error('[Mirror Pool] Testing mirrors...');
   const results = await Promise.all(
@@ -61,6 +76,11 @@ export async function getFastestMirror(): Promise<string> {
   );
 
   const fastest = results.reduce((a, b) => a.time < b.time ? a : b);
+  if (fastest.time === Infinity) {
+    console.error('[Mirror Pool] All mirrors unavailable, using default');
+    return 'https://huggingface.co/api';
+  }
+
   console.error(`[Mirror Pool] Fastest: ${fastest.url} (${fastest.time}ms)`);
 
   saveCache(fastest.url);

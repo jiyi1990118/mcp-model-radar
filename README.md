@@ -1,6 +1,6 @@
 # AI Model Intelligence MCP
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/jiyi1990118/mcp-model-radar)
+[![Version](https://img.shields.io/badge/version-2.0.2-blue.svg)](https://github.com/jiyi1990118/mcp-model-radar)
 [![npm](https://img.shields.io/npm/v/@npm_xiyuan/mcp-model-radar)](https://www.npmjs.com/package/@npm_xiyuan/mcp-model-radar)
 [![License](https://img.shields.io/badge/license-ISC-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
@@ -15,73 +15,40 @@ A Model Context Protocol (MCP) server that provides real-time intelligence about
 
 In the rapidly evolving AI landscape, staying updated on model trends is crucial but time-consuming. This MCP server solves that by:
 
-- ✅ **Zero Configuration** - SQLite-based, runs out of the box
-- ✅ **Real-time Intelligence** - Track downloads, likes, and trend scores
-- ✅ **17 Powerful Tools** - Core tools + Advanced features (search filters, quantization versions, ecosystem analysis, batch comparison, task recommendations, deployment guides, benchmarks, trend tracking)
-- ✅ **Multi-dimensional Analysis** - Compare models across metrics
-- ✅ **Smart Mirror Selection** - Auto-selects fastest HuggingFace mirror
-- ✅ **Open Source** - Customize and extend as needed
+- ✅ **Zero Configuration** — SQLite-based, runs out of the box. DB auto-creates at `~/.mcp-model-radar/modelradar.db`
+- ✅ **Dual-Mode Transport** — Stdio (default, 1 process per client) or Streamable HTTP (shared process, `-p PORT`)
+- ✅ **20 Powerful Tools** — Discovery, search, comparison, recommendation, deployment analysis, benchmarks, trend tracking, dark horse detection, community sentiment, reports
+- ✅ **Multi-dimensional Analysis** — Compare models across downloads, likes, trend scores, cost, context length
+- ✅ **Smart Mirror Selection** — Auto-selects fastest HuggingFace mirror with health checks
+- ✅ **SQLite + PostgreSQL** — Zero-config SQLite for local dev, PostgreSQL for production
+- ✅ **Open Source** — ISC licensed, customize and extend as needed
 
 ## 📋 Table of Contents
 
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [MCP Tools](#mcp-tools)
-- [Usage Examples](#usage-examples)
-- [Architecture](#architecture)
-- [Development](#development)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
-
-## ✨ Features
-
-### 17 Powerful MCP Tools
-
-| Category | Tool | Description | Use Case |
-|----------|------|-------------|----------|
-| 🔥 **Discovery** | `get_hot_models` | Track trending models by growth rate | "What are the hottest models this week?" |
-| 🆕 **Discovery** | `get_latest_models` | Discover recently released models | "Show me newly released models" |
-| 🔍 **Search** | `search_models` | Advanced search with filters (type, license, author, sorting) | "Find Apache-2.0 licensed coding models" |
-| 📊 **Details** | `get_model_detail` | Comprehensive model info with VRAM estimates | "Tell me about Qwen2.5-Coder-32B" |
-| ⚖️ **Comparison** | `compare_models` | Compare two models across dimensions | "Compare Llama-3.3-70B vs DeepSeek-V3" |
-| 🔄 **Comparison** | `compare_models_batch` | Compare 2-5 models simultaneously | "Compare top 3 coding models" |
-| 🎯 **Recommendation** | `recommend_for_task` | Task-based recommendations with constraints | "Best model for coding on 24GB GPU" |
-| 🚀 **Deployment** | `get_deployment_guide` | Hardware-aware feasibility analysis | "Can I run Qwen2.5-72B on 32GB VRAM?" |
-| 📊 **Benchmarks** | `get_model_benchmarks` | Arena ELO ratings and benchmark scores | "Show benchmark scores for Claude-3.5" |
-| 📈 **Analytics** | `get_trending_changes` | Track rank and metric changes over time | "Which models are rising in popularity?" |
-| 📦 **Quantization** | `get_model_versions` | Find GGUF/AWQ/GPTQ/MLX variants | "Show quantized versions of Llama-3.3" |
-| 🌳 **Ecosystem** | `get_model_ecosystem` | Explore base models and derivatives | "What models are based on Llama-3?" |
-| 🏷️ **Filter** | `get_models_by_type` | Filter models by type/tags | "Show all text-to-image models" |
-| 📏 **Filter** | `get_models_by_size` | Filter by parameter count range | "Models between 7B and 13B parameters" |
-| 📜 **Filter** | `get_models_by_license` | Filter by license type | "Show all MIT licensed models" |
-| 👤 **Filter** | `get_models_by_author` | Get models from specific author/org | "All models by Qwen team" |
-
-### Data Sources
-
-| Source | Data Provided |
-|--------|---------------|
-| 🤗 **HuggingFace** | Downloads, likes, metadata, tags, licenses, model cards |
-| 🔄 **OpenRouter** | Real-time pricing, context length, provider availability |
-| 🏆 **LMSYS Arena** | ELO ratings, rankings, benchmark scores *(Coming Soon)* |
+- [Quick Start](#-quick-start)
+- [HTTP Mode (Shared Process)](#-http-mode-shared-process)
+- [Supported MCP Clients](#-supported-mcp-clients)
+- [Installation (from Source)](#-installation-from-source)
+- [Configuration](#-configuration)
+- [MCP Tools](#-mcp-tools)
+- [Architecture](#-architecture)
+- [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
+- [Roadmap](#-roadmap)
 
 ## 🚀 Quick Start
 
-### Step 1: Install via npm (Recommended)
+### Step 1: Install via npm
 
 ```bash
 npm install -g @npm_xiyuan/mcp-model-radar
 ```
 
-### Step 2: Configure Claude Desktop
+### Step 2: Configure Your MCP Client
 
-Edit your Claude Desktop configuration file:
+Edit your MCP client configuration. Here are the most common ones:
 
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
 
 ```json
 {
@@ -94,304 +61,159 @@ Edit your Claude Desktop configuration file:
 }
 ```
 
-### Step 3: Restart Claude Desktop
+**Claude Code / Cursor / Cline / Continue / Zed** — same `command` + `args` pattern, see [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md) for details.
 
-After restarting, you'll have access to **17 powerful AI model intelligence tools**! 🎉
+### Step 3: Restart Your Client
+
+You'll have access to **16 AI model intelligence tools**! 🎉
+
+Try asking: *"What are the hottest AI models right now?"* or *"Compare Qwen3-235B vs DeepSeek-V3"*
+
+---
+
+## 🌐 HTTP Mode (Shared Process)
+
+By default, each MCP client spawns its own `npx` process. For multi-client environments, start a **single shared HTTP server** instead:
+
+```bash
+# Start shared MCP server
+mcp-model-radar -p 3100
+# or: npm run start:http
+```
+
+Then configure ALL clients to connect to the same URL:
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "url": "http://localhost:3100/mcp"
+    }
+  }
+}
+```
+
+**Benefits:** single process, shared database connection, zero startup latency, unified scheduler.
+
+> **Note:** Stdio mode (`command: "npx"`) is still the default and works everywhere. HTTP mode requires clients that support the `url` field (Claude Desktop, Claude Code, Cline, Continue, Zed).
 
 ---
 
 ## 💡 Usage Examples
 
-### 🔥 Find Hot Trending Models
+Ask your AI assistant:
 
-Ask Claude:
-```
-What are the trending AI models right now?
-```
-
-Claude will use the `get_hot_models` tool to show you models with the highest growth rates.
-
-### 🔍 Search for Specific Models
-
-Ask Claude:
-```
-Find me coding models with Apache 2.0 license
-```
-
-Claude will use `search_models` with filters to find matching models.
-
-### ⚖️ Compare Multiple Models
-
-Ask Claude:
-```
-Compare Qwen2.5-Coder-32B, DeepSeek-V3, and Llama-3.3-70B
-```
-
-Claude will use `compare_models_batch` to show a detailed comparison across metrics.
-
-### 🎯 Get Task Recommendations
-
-Ask Claude:
-```
-Recommend a coding model that can run on my 24GB VRAM GPU
-```
-
-Claude will use `recommend_for_task` to suggest suitable models based on your constraints.
-
-### 🚀 Check Deployment Feasibility
-
-Ask Claude:
-```
-Can I run Qwen2.5-72B on my system with 32GB VRAM?
-```
-
-Claude will use `get_deployment_guide` to analyze hardware requirements and suggest quantization options.
+| What to ask | Tool Used |
+|-------------|-----------|
+| *"What are the hottest AI models right now?"* | `get_hot_models` |
+| *"Show me models released in the last 48 hours"* | `get_latest_models` |
+| *"Find Apache-2.0 licensed coding models"* | `search_models` |
+| *"Tell me about Qwen3-235B"* | `get_model_detail` |
+| *"Compare Llama-3.3-70B vs DeepSeek-V3 vs Qwen3-235B"* | `compare_models_batch` |
+| *"Best model for coding on a 24GB GPU?"* | `recommend_for_task` |
+| *"Can I run Qwen2.5-72B on 32GB VRAM?"* | `get_deployment_guide` |
+| *"Which models are rising in popularity?"* | `get_trending_changes` |
+| *"Show me all models by Qwen"* | `get_models_by_author` |
+| *"Models between 7B and 70B parameters"* | `get_models_by_size` |
+| *"Show all MIT licensed models"* | `get_models_by_license` |
+| *"Show all text-to-image models"* | `get_models_by_type` |
+| *"Show quantized versions of Llama-3.3"* | `get_model_versions` |
+| *"What models are based on Llama-3?"* | `get_model_ecosystem` |
+| *"Show benchmark scores for Claude 3.5"* | `get_model_benchmarks` |
 
 ---
 
 ## 🔧 Supported MCP Clients
 
-This MCP server works with any application that supports the Model Context Protocol. Here's a comprehensive list:
+This MCP server works with any MCP-compatible application:
 
-### 🤖 AI Assistants
+### AI Assistants
+**Claude Desktop**, **Claude Code**, **Cherry Studio**, **Open WebUI**
 
-| Client | Platform | Configuration |
-|--------|----------|---------------|
-| **Claude Desktop** | macOS, Windows | Add to `claude_desktop_config.json` |
-| **Claude Code** | CLI, Desktop, Web, IDE Extensions | Built-in MCP support |
-| **Cherry Studio** | Cross-platform | Built-in MCP support |
-| **Open WebUI** | Web-based | MCP integration via settings |
+### AI Coding Agents
+**Aider**, **OpenHands**, **Void**, **Aide**, **Devin**
 
-### 🛠️ AI Coding Agents
+### IDEs & Editors
+**Cursor**, **Windsurf**, **Zed**, **VS Code** (via Cline/Continue), **JetBrains** (via Continue)
 
-| Agent | Platform | Description |
-|-------|----------|-------------|
-| **Aider** | Terminal/CLI | AI pair programming in terminal, supports MCP |
-| **OpenHands** | Web/Self-hosted | Open-source AI software engineer (formerly OpenDevin) |
-| **Void** | Desktop IDE | AI-first code editor with MCP support |
-| **Aide** | VS Code | AI development assistant with MCP integration |
-| **Devin** | Web-based | AI software engineer by Cognition AI |
+### VS Code Extensions
+**Cline**, **Continue**, **RooCode**
 
-### 💻 IDEs & Editors
-
-| IDE/Editor | Platform | Extension/Integration |
-|------------|----------|----------------------|
-| **Cursor** | macOS, Windows, Linux | Built-in MCP support |
-| **Windsurf** | macOS, Windows, Linux | Native MCP integration |
-| **Zed** | macOS, Linux | Built-in MCP support |
-| **VS Code** | Cross-platform | Via Cline or Continue extensions |
-| **JetBrains IDEs** | Cross-platform | Via Continue plugin |
-
-### 🔌 VS Code Extensions
-
-| Extension | Description | MCP Config |
-|-----------|-------------|------------|
-| **Cline** | AI coding assistant | Add to Cline settings |
-| **Continue** | AI code assistant | Add to `continue/config.json` |
-| **RooCode** | AI pair programmer | MCP server configuration |
-
-### 📖 Configuration Examples
-
-<details>
-<summary><b>Claude Desktop</b></summary>
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "model-radar": {
-      "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Cursor</b></summary>
-
-Open Cursor Settings → Features → Enable MCP
-
-Add to MCP servers list:
-```json
-{
-  "model-radar": {
-    "command": "npx",
-    "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Cline (VS Code)</b></summary>
-
-Open Cline settings → MCP Servers
-
-Add configuration:
-```json
-{
-  "mcpServers": {
-    "model-radar": {
-      "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Continue (VS Code/JetBrains)</b></summary>
-
-**Location**: `~/.continue/config.json` (macOS/Linux) or `%USERPROFILE%\.continue\config.json` (Windows)
-
-```json
-{
-  "mcpServers": {
-    "model-radar": {
-      "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Zed Editor</b></summary>
-
-Add to Zed settings:
-```json
-{
-  "context_servers": {
-    "model-radar": {
-      "command": "npx",
-      "args": ["-y", "@npm_xiyuan/mcp-model-radar"]
-    }
-  }
-}
-```
-</details>
-
-📖 **For detailed configuration guides**, see [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
+📖 Full configuration examples for each client: [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
 
 ---
 
-## 📖 Complete Configuration Guide
-
-### For Other MCP Clients
-
-**Cursor, Cline, Continue, Zed**: See [MCP Configuration Guide](./MCP_CONFIG_GUIDE.md)
-
-### Alternative: Install from Source
-
-If you prefer to build from source:
-
-```bash
-# Clone the repository
-git clone https://github.com/jiyi1990118/mcp-model-radar.git
-cd mcp-model-radar
-
-# Install and build
-npm install
-npm run build
-
-# Configure Claude Desktop
-{
-  "mcpServers": {
-    "model-radar": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"]
-    }
-  }
-}
-```
-
-## 📦 Installation
+## 📦 Installation (from Source)
 
 ### Prerequisites
 
-- **Node.js** 18.0.0 or higher
-- **npm** or **pnpm**
-- **SQLite** (recommended, built-in) OR **PostgreSQL 14+** (optional)
+- **Node.js** 18.0.0+
+- **SQLite** (built-in, recommended) or **PostgreSQL 14+** (optional)
 
-### Option 1: SQLite (Recommended)
+### SQLite (Recommended)
 
-Zero configuration, perfect for local development and testing.
+Zero configuration, single-file database at `~/.mcp-model-radar/modelradar.db`.
 
 ```bash
-# Clone the repository
 git clone https://github.com/jiyi1990118/mcp-model-radar.git
 cd mcp-model-radar
-
-# Install dependencies
 npm install
-
-# Build the project
 npm run build
-
-# Insert test data (5 popular models)
-npm run insert-test
-
-# Verify everything works
-npm run test
+npm run insert-test   # 5 popular models with real params
+npm run test          # verify all 9 tests pass
 ```
 
-Your database is automatically created at `./modelradar.db` (48 KB with test data).
-
-### Option 2: PostgreSQL
-
-For production deployments or larger datasets.
+### PostgreSQL (Production)
 
 ```bash
-# Install dependencies
 npm install
-
-# Create database
 psql -U postgres -c "CREATE DATABASE modelradar;"
-
-# Run schema
 psql -U postgres -d modelradar -f src/db/schema.sql
-
-# Configure environment
 cp .env.example .env
-# Edit .env and set:
-# DB_TYPE=postgresql
-# DATABASE_URL=postgresql://postgres:password@localhost:5432/modelradar
-
-# Build and seed
+# Edit .env: DB_TYPE=postgresql, DATABASE_URL=...
 npm run build
 npm run seed
 ```
+
+### Available Scripts
+
+```bash
+npm run build         # Compile TypeScript
+npm start             # Start MCP server (stdio mode)
+npm run start:http    # Start MCP server (HTTP mode, port 3100)
+npm run dev           # Dev mode with hot reload (stdio)
+npm run dev:http      # Dev mode with hot reload (HTTP)
+npm run test          # Run all tool tests
+npm run insert-test   # Insert 5 test models
+npm run seed          # Seed with real API data
+```
+
+---
 
 ## ⚙️ Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file (copy from `.env.example`):
 
 ```bash
-# Database Type: sqlite or postgresql
-DB_TYPE=sqlite
+# Database
+DB_TYPE=sqlite                            # sqlite or postgresql
+# SQLITE_DB_PATH=~/.mcp-model-radar/modelradar.db   # default, auto-created
+# DATABASE_URL=postgresql://user:pass@localhost:5432/modelradar
 
-# SQLite Configuration (when DB_TYPE=sqlite)
-SQLITE_DB_PATH=./modelradar.db
+# Transport
+# MCP_TRANSPORT=http                      # force HTTP mode (alternative to -p flag)
+# MCP_PORT=3100                           # HTTP port (default: 3100)
 
-# PostgreSQL Configuration (when DB_TYPE=postgresql)
-DATABASE_URL=postgresql://postgres:password@localhost:5432/modelradar
+# API Keys (optional)
+OPENROUTER_API_KEY=
 
-# API Keys (optional for V1)
-OPENROUTER_API_KEY=your_api_key_here
-
-# Collector Settings
+# Collectors
 HF_COLLECTION_LIMIT=100
 HF_PRIORITY_ORGS=unsloth,Qwen,deepseek-ai,microsoft,google,mistralai,meta-llama
 
-# Scheduler (set to true to enable hourly data collection)
+# Scheduler (enable hourly data collection)
 ENABLE_SCHEDULER=false
 
 # Logging
@@ -400,524 +222,326 @@ LOG_LEVEL=info
 
 ### Database Switching
 
-Switch between SQLite and PostgreSQL anytime by changing `DB_TYPE` in `.env`:
+Change `DB_TYPE` in `.env` anytime — no code changes needed.
 
-```bash
-# Use SQLite (default)
-DB_TYPE=sqlite
-
-# Use PostgreSQL
-DB_TYPE=postgresql
-```
-
-No code changes needed - the database adapter handles everything.
+---
 
 ## 🛠️ MCP Tools
 
-All tools are accessible through MCP clients like Claude Desktop, Cursor, etc.
+All 20 tools are accessible through any MCP client. See the tool list and parameters below.
 
-### 1. `get_hot_models`
+### Discovery Tools
 
+#### `get_hot_models`
 Get trending models sorted by trend score.
+- `limit` (optional, default 20) — Number of models to return
 
-**Parameters:**
-- `limit` (optional): Number of models to return (default: 20)
-
-**Returns:** Array of models with trend scores, downloads, and likes
-
-**Example Usage:**
-```
-"Get the top 10 hottest AI models right now"
-"Show me the 5 most trending models"
-```
-
-**Sample Response:**
-```json
-[
-  {
-    "model": "Qwen/Qwen3-235B",
-    "trend_score": 98,
-    "downloads": 5000000,
-    "likes": 12000
-  },
-  {
-    "model": "deepseek-ai/DeepSeek-V3",
-    "trend_score": 95,
-    "downloads": 3000000,
-    "likes": 8000
-  }
-]
-```
-
-### 2. `get_latest_models`
-
+#### `get_latest_models`
 Get recently released models.
+- `hours` (optional, default 24) — Hours to look back
 
-**Parameters:**
-- `hours` (optional): Hours to look back (default: 24)
+### Search & Detail Tools
 
-**Returns:** Array of models released within the specified timeframe
+#### `search_models`
+Search models by keyword with advanced filters.
+- `keyword` (required) — Search term
+- `filters` (optional) — `{ type, license, author }`
+- `sort_by` (optional) — `downloads | likes | trend_score | created_at`
+- `limit` (optional, default 50)
 
-**Example Usage:**
-```
-"Show me models released in the last 48 hours"
-"What are the newest AI models?"
-```
+#### `get_model_detail`
+Get comprehensive model info including VRAM estimates.
+- `model_id` (required) — Full model ID, e.g. `"Qwen/Qwen3-235B"`
 
-**Sample Response:**
-```json
-[
-  {
-    "model": "mistralai/Mistral-Large-2",
-    "name": "Mistral-Large-2",
-    "author": "mistralai",
-    "created_at": "2026-06-07T10:30:00Z",
-    "downloads": 1500000,
-    "likes": 5000
-  }
-]
-```
+### Comparison Tools
 
-### 3. `search_models`
+#### `compare_models`
+Compare two models across downloads, likes, trend score, context length, and cost.
+- `model_a` (required) — First model ID
+- `model_b` (required) — Second model ID
 
-Search models by keyword across name, author, and metadata.
+#### `compare_models_batch`
+Compare 2–5 models simultaneously across multiple dimensions.
+- `model_ids` (required) — Array of 2–5 model IDs
+- `dimensions` (optional) — `["performance", "cost", "context"]`
 
-**Parameters:**
-- `keyword` (required): Search term
-- `limit` (optional): Max results (default: 50)
+### Filter Tools
 
-**Returns:** Array of matching models
+#### `get_models_by_type`
+Filter by type/tag, e.g. `text-generation`, `text-to-image`.
+- `type` (required)
+- `limit` (optional, default 20)
 
-**Example Usage:**
-```
-"Search for models with 'qwen' in the name"
-"Find all deepseek models"
-```
+#### `get_models_by_size`
+Filter by parameter count range, e.g. `"7B"` to `"70B"`.
+- `minParams` (optional) — e.g. `"7B"`
+- `maxParams` (optional) — e.g. `"70B"`
+- `limit` (optional, default 20)
 
-**Sample Response:**
-```json
-[
-  {
-    "model": "Qwen/Qwen3-235B",
-    "name": "Qwen3-235B",
-    "author": "Qwen",
-    "downloads": 5000000,
-    "likes": 12000,
-    "trend_score": 98
-  }
-]
-```
+#### `get_models_by_license`
+Filter by license type, e.g. `Apache-2.0`, `MIT`.
+- `license` (required)
+- `limit` (optional, default 20)
 
-### 4. `get_model_detail`
+#### `get_models_by_author`
+Get all models from a specific organization.
+- `author` (required)
+- `limit` (optional, default 20)
 
-Get comprehensive information about a specific model.
+### Advanced Tools
 
-**Parameters:**
-- `model_id` (required): Full model ID (e.g., "Qwen/Qwen3-235B")
+#### `get_model_versions`
+Find quantized versions (GGUF, AWQ, GPTQ, MLX) of a model.
+- `model_id` (required)
 
-**Returns:** Detailed model object with all metadata
+#### `get_model_ecosystem`
+Explore base model and all derivative models (fine-tunes, variants).
+- `model_id` (required)
 
-**Example Usage:**
-```
-"Show me details for Qwen/Qwen3-235B"
-"Get full information about deepseek-ai/DeepSeek-V3"
-```
+#### `recommend_for_task`
+Get AI model recommendations for a specific task with constraints.
+- `task` (required) — `code-generation | translation | chat | summarization | reasoning`
+- `constraints` (optional) — `{ max_vram_gb, max_cost_per_1m, min_context, license }`
+- `top_n` (optional, default 3)
 
-**Sample Response:**
-```json
-{
-  "model_id": "Qwen/Qwen3-235B",
-  "name": "Qwen3-235B",
-  "author": "Qwen",
-  "base_model": null,
-  "params": null,
-  "license": "Apache-2.0",
-  "context_length": 32768,
-  "tags": ["text-generation"],
-  "created_at": "2026-06-08T02:00:00Z",
-  "downloads": 5000000,
-  "likes": 12000,
-  "trend_score": 98
-}
-```
+#### `get_deployment_guide`
+Hardware-aware deployment feasibility analysis.
+- `model_id` (required)
+- `hardware` (optional) — `{ gpu, vram_gb, ram_gb, cpu_cores }`
 
-### 5. `compare_models`
+#### `get_model_benchmarks`
+Arena ELO ratings and benchmark scores.
+- `model_id` (required)
 
-Compare two models across multiple dimensions.
+#### `get_trending_changes`
+Track rank and metric changes over time (rising/falling models).
+- `period` (optional, default `"7d"`) — `24h | 7d | 30d`
+- `metric` (optional, default `"trend_score"`) — `downloads | likes | trend_score`
 
-**Parameters:**
-- `model_a` (required): First model ID
-- `model_b` (required): Second model ID
-
-**Returns:** Comparison result showing which model wins in each dimension
-
-**Example Usage:**
-```
-"Compare Qwen/Qwen3-235B with deepseek-ai/DeepSeek-V3"
-"Which is better: model A or model B?"
-```
-
-**Sample Response:**
-```json
-{
-  "downloads": "A",
-  "likes": "A",
-  "trend_score": "A",
-  "cost": "B",
-  "context": "B"
-}
-```
-
-Keys: `"A"` = first model wins, `"B"` = second model wins, `"tie"` = equal
-
-## 📚 Usage Examples
-
-### Example 1: Finding Trending Models
-
-**User Query:** "What are the hottest AI models right now?"
-
-**Tool Called:** `get_hot_models` with `limit: 5`
-
-**Result:** List of 5 models with highest trend scores, showing which models are gaining traction fastest.
-
-### Example 2: Discovering New Releases
-
-**User Query:** "Show me models released today"
-
-**Tool Called:** `get_latest_models` with `hours: 24`
-
-**Result:** All models released in the last 24 hours, perfect for staying updated.
-
-### Example 3: Finding Specific Models
-
-**User Query:** "Find all Qwen models"
-
-**Tool Called:** `search_models` with `keyword: "qwen"`
-
-**Result:** All models matching "qwen" in name or metadata.
-
-### Example 4: Model Comparison
-
-**User Query:** "Compare Qwen3-235B vs DeepSeek-V3"
-
-**Tool Called:** `compare_models` with both model IDs
-
-**Result:** Head-to-head comparison showing strengths of each model.
+---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────┐
-│         MCP Server (stdio)          │
-│    5 Tools exposed via MCP SDK      │
-└─────────────────┬───────────────────┘
-                  │
-┌─────────────────▼───────────────────┐
-│         Tools Layer                 │
-│  get_hot_models, search_models...   │
-└─────────────────┬───────────────────┘
-                  │
-┌─────────────────▼───────────────────┐
-│    Database Abstraction Layer       │
-│   Unified interface for queries     │
-└─────────────┬───────────┬───────────┘
-              │           │
-       ┌──────▼──┐   ┌────▼──────┐
-       │ SQLite  │   │PostgreSQL │
-       └─────────┘   └───────────┘
-                  │
-┌─────────────────▼───────────────────┐
-│       Data Collectors               │
-│  HuggingFace, OpenRouter APIs       │
-└─────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│              MCP Server (Dual-Mode)               │
+│                                                   │
+│  StdioServerTransport (default, 1 process/client) │
+│  StreamableHTTPServerTransport (-p PORT, shared)  │
+└────────────────────┬──────────────────────────────┘
+                     │
+┌────────────────────▼──────────────────────────────┐
+│              Tools Layer (16 tools)               │
+│  Discovery │ Search │ Comparison │ Filter │ Advanced │ V3 │
+└────────────────────┬──────────────────────────────┘
+                     │
+┌────────────────────▼──────────────────────────────┐
+│         Database Abstraction Layer                │
+│    Unified interface (SQLite + PostgreSQL)        │
+└──────────┬─────────────────────┬──────────────────┘
+           │                     │
+    ┌──────▼──────┐      ┌──────▼──────┐
+    │   SQLite    │      │ PostgreSQL  │
+    │ (WAL mode)  │      │             │
+    └─────────────┘      └─────────────┘
+           │
+┌──────────▼────────────────────────────────────────┐
+│              Data Collectors                      │
+│  HuggingFace (models, downloads)                  │
+│  OpenRouter (pricing, context)                    │
+│  LMSYS Arena (ELO ratings)                        │
+└───────────────────────────────────────────────────┘
 ```
 
 ### Key Components
 
-- **MCP Server** (`src/server.ts`) - Entry point, registers tools
-- **Tools** (`src/tools/`) - 5 MCP tool implementations
-- **Database Layer** (`src/db/`) - Abstraction for SQLite/PostgreSQL
-- **Collectors** (`src/collectors/`) - Data collection from external APIs
-- **Analysis** (`src/analysis/`) - Trend score calculation
+| Component | Location | Description |
+|-----------|----------|-------------|
+| MCP Server | `src/server.ts` | Dual-mode entry point, 16 tools |
+| Tools | `src/tools/` | 20 MCP tool implementations |
+| Database | `src/db/` | SQLite/PostgreSQL abstraction |
+| Collectors | `src/collectors/` | HuggingFace, OpenRouter data collection |
+| API Clients | `src/api/` | HuggingFace API, Arena leaderboard |
+| Analysis | `src/analysis/` | Trend score calculation |
+| Scheduler | `src/scheduler/` | Cron jobs with file-lock dedup |
+| Utilities | `src/utils/` | Mirror pool, sync manager, recommendations |
 
 ### Trend Score Algorithm
 
-V1 Formula:
 ```
-Trend Score = (0.6 × Download Growth) + (0.4 × Like Growth)
-Scale: 0-100
-Growth Period: 7 days
+Trend Score = 0.6 × Download Growth + 0.4 × Like Growth
+Scale: 0–100, Growth Period: 7 days
 ```
 
-Higher scores indicate faster-growing models with strong community engagement.
+### Data Sources
+
+| Source | Data |
+|--------|------|
+| 🤗 **HuggingFace** | Downloads, likes, metadata, tags, licenses |
+| 🔄 **OpenRouter** | Real-time pricing, context length, providers |
+| 🏆 **LMSYS Arena** | ELO ratings, rankings |
+| 🐙 **GitHub** | AI repo stars, forks, topics |
+| 💬 **Reddit** | Community discussions, sentiment |
+| 🐙 **GitHub** | AI repo stars, forks, topics |
+| 💬 **Reddit** | Community discussions, sentiment (r/LocalLLaMA, r/MachineLearning, r/OpenAI) |
+
+---
 
 ## 💻 Development
 
 ### Project Structure
 
 ```
-modelRadar/
+mcp-model-radar/
 ├── src/
-│   ├── server.ts              # MCP server entry point
-│   ├── tools/                 # MCP tool implementations
+│   ├── server.ts                # MCP server (dual-mode entry)
+│   ├── cli.ts                   # CLI wrapper (modelradar command)
+│   ├── insert-test-data.ts      # Test data seeder
+│   ├── test-tools.ts            # Tool test runner
+│   ├── tools/                   # 20 MCP tool implementations
 │   │   ├── get-hot-models.ts
 │   │   ├── get-latest-models.ts
 │   │   ├── search-models.ts
 │   │   ├── get-model-detail.ts
-│   │   └── compare-models.ts
-│   ├── db/                    # Database layer
-│   │   ├── index.ts          # Database adapter
-│   │   ├── connection.ts     # PostgreSQL connection
-│   │   ├── connection-sqlite.ts  # SQLite connection
-│   │   ├── queries.ts        # PostgreSQL queries
-│   │   ├── queries-sqlite.ts # SQLite queries
-│   │   ├── schema.sql        # PostgreSQL schema
-│   │   └── schema-sqlite.sql # SQLite schema
-│   ├── collectors/            # Data collectors
+│   │   ├── compare-models.ts
+│   │   ├── compare-models-batch.ts
+│   │   ├── get-models-by-type.ts
+│   │   ├── get-models-by-size.ts
+│   │   ├── get-models-by-license.ts
+│   │   ├── get-models-by-author.ts
+│   │   ├── get-model-versions.ts
+│   │   ├── get-model-ecosystem.ts
+│   │   ├── recommend-for-task.ts
+│   │   ├── get-deployment-guide.ts
+│   │   ├── get-model-benchmarks.ts
+│   │   └── get-trending-changes.ts
+│   ├── db/                      # Database abstraction
+│   │   ├── index.ts             # Adapter (auto-selects SQLite/PG)
+│   │   ├── connection-sqlite.ts # SQLite (better-sqlite3, WAL mode)
+│   │   ├── connection.ts        # PostgreSQL (pg Pool)
+│   │   ├── queries-sqlite.ts    # SQLite queries
+│   │   ├── queries.ts           # PostgreSQL queries
+│   │   ├── schema-sqlite.sql    # SQLite schema
+│   │   └── schema.sql           # PostgreSQL schema
+│   ├── collectors/              # Data collectors (with retry + timeout)
 │   │   ├── huggingface.ts
-│   │   └── openrouter.ts
-│   ├── analysis/              # Analysis logic
-│   │   └── trend-score.ts
-│   └── scheduler/             # Cron jobs
-│       └── collector-jobs.ts
-├── dist/                      # Compiled JavaScript
-├── docs/                      # Documentation
+│   │   ├── openrouter.ts
+│   │   └── metrics-tracker.ts
+│   ├── api/                     # External API clients
+│   │   ├── huggingface-api.ts   # HF search/detail with retry
+│   │   └── arena-api.ts         # LMSYS Arena CSV parser
+│   ├── analysis/
+│   │   └── trend-score.ts       # Trend calculation (SQLite + PG)
+│   ├── scheduler/
+│   │   └── collector-jobs.ts    # Cron jobs with PID file lock
+│   └── utils/
+│       ├── db-path.ts           # ~/.mcp-model-radar path helper
+│       ├── db-check.ts          # DB availability check
+│       ├── mirror-pool.ts       # Fastest mirror selection
+│       ├── sync-manager.ts      # Background sync coordinator
+│       └── recommendation-engine.ts
+├── dist/                        # Compiled output
 ├── package.json
-├── tsconfig.json
-└── .env                       # Environment config
-```
-
-### Available Scripts
-
-```bash
-# Development
-npm run dev          # Start with hot reload using tsx
-
-# Build
-npm run build        # Compile TypeScript + copy SQL files
-
-# Production
-npm start            # Start the MCP server
-
-# Testing
-npm run test         # Run all tool tests
-npm run insert-test  # Insert test data quickly
-
-# Data seeding
-npm run seed         # Seed with real data (requires API access)
+└── tsconfig.json
 ```
 
 ### Adding a New Tool
 
-1. Create tool file in `src/tools/your-tool.ts`:
+1. Create `src/tools/your-tool.ts`:
 
 ```typescript
-import { getModels } from '../db/index.js';
-
 export async function yourTool(args: any) {
   // Implementation
-  const results = await getModels(args.limit, 'ORDER_CLAUSE');
-  return results;
+  return { success: true, data: [] };
 }
 ```
 
-2. Register in `src/server.ts`:
+2. Import and add to `toolHandlers` in `src/server.ts`:
 
 ```typescript
-server.tool({
-  name: 'your_tool',
-  description: 'Tool description',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      // Define parameters
-    }
-  }
-}, async (request) => {
-  const result = await yourTool(request.params.arguments);
-  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-});
+import { yourTool } from './tools/your-tool.js';
+
+const toolHandlers: Record<string, (args: any) => Promise<any>> = {
+  // ... existing handlers
+  your_tool: (a) => yourTool(a),
+};
 ```
 
-3. Test it:
+3. Add the tool definition to `ListToolsRequestSchema` with `inputSchema`.
 
-```bash
-npm run build
-npm start
-# Use the tool in Claude Desktop
-```
+4. Build and test: `npm run build && npm run test`
+
+---
 
 ## 🐛 Troubleshooting
 
-### Database Issues
+### Database
 
-**Problem:** "ENOENT: no such file or directory, open './modelradar.db'"
+| Problem | Solution |
+|---------|----------|
+| `ENOENT: no such file, open '.../modelradar.db'` | `npm run build && npm run insert-test` |
+| PostgreSQL connection refused | Check `pg_isready`, verify `DATABASE_URL` in `.env` |
+| SQLITE_BUSY errors | DB is in WAL mode with 5s busy_timeout; reduce concurrent writes |
 
-**Solution:**
-```bash
-npm run build
-npm run insert-test
-```
+### MCP Configuration
 
-The database is auto-created on first run. Make sure to build first.
+| Problem | Solution |
+|---------|----------|
+| Tools not showing in client | Use **absolute** paths in config; check `dist/server.js` exists; restart client |
+| HTTP mode: `ECONNREFUSED` | Ensure server is running: `mcp-model-radar -p 3100` |
+| HTTP mode: `Bad Request: Server not initialized` | Client must send `initialize` request first (MCP protocol requirement) |
+| No data returned | Run `npm run insert-test` to seed test data |
 
----
-
-**Problem:** "PostgreSQL connection refused"
-
-**Solution:**
-1. Ensure PostgreSQL is running: `pg_isready`
-2. Check `DATABASE_URL` in `.env`
-3. Verify database exists: `psql -U postgres -l`
-
-### MCP Configuration Issues
-
-**Problem:** "Tools not showing in Claude Desktop"
-
-**Solution:**
-1. Verify config path is **absolute**, not relative
-2. Check `dist/server.js` exists after `npm run build`
-3. Restart Claude Desktop completely
-4. Check Claude Desktop logs for errors
-
-**macOS logs:** `~/Library/Logs/Claude/mcp*.log`
+**Claude Desktop logs (macOS):** `~/Library/Logs/Claude/mcp*.log`
 
 ---
-
-**Problem:** "No data returned from tools"
-
-**Solution:**
-```bash
-# Insert test data first
-npm run insert-test
-
-# Verify tools work
-npm run test
-```
-
-### Build Issues
-
-**Problem:** "Cannot find module './db/schema-sqlite.sql'"
-
-**Solution:**
-The build script automatically copies SQL files. If it fails:
-```bash
-npm run copy-sql
-```
-
-Or manually:
-```bash
-mkdir -p dist/db
-cp src/db/*.sql dist/db/
-```
-
-### Common Questions
-
-**Q: Can I use both SQLite and PostgreSQL?**
-
-A: Yes, switch anytime by changing `DB_TYPE` in `.env`. The database adapter handles everything.
-
-**Q: How do I add more models?**
-
-A: Enable the scheduler (`ENABLE_SCHEDULER=true`) or run collectors manually:
-```bash
-npm run seed
-```
-
-**Q: Can I deploy this to production?**
-
-A: Yes! Use PostgreSQL for production:
-```bash
-DB_TYPE=postgresql
-DATABASE_URL=postgresql://user:pass@host:5432/db
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! This project follows standard open source practices.
-
-### How to Contribute
-
-1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/yourusername/mcp-model-radar.git`
-3. **Create a branch**: `git checkout -b feature/your-feature`
-4. **Make changes** and test thoroughly
-5. **Commit**: `git commit -m "Add: your feature description"`
-6. **Push**: `git push origin feature/your-feature`
-7. **Open a Pull Request** with a clear description
-
-### Development Guidelines
-
-- Write TypeScript with strict type checking
-- Follow existing code style (2 spaces, semicolons)
-- Add tests for new features
-- Update documentation for user-facing changes
-- Use meaningful commit messages
-
-### Code of Conduct
-
-- Be respectful and inclusive
-- Focus on constructive feedback
-- Help newcomers learn and contribute
-- Report issues with clear reproduction steps
-
-### Areas for Contribution
-
-- 🌟 New data sources (Arena, GitHub, Reddit)
-- 🔧 Additional MCP tools
-- 📊 Enhanced analytics and scoring
-- 🐛 Bug fixes and optimizations
-- 📚 Documentation improvements
-- 🌐 Translations
 
 ## 🗺️ Roadmap
 
 ### ✅ V1.0 (Completed)
+- HuggingFace + OpenRouter data collection
+- 9 core MCP tools (discovery, search, detail, compare, filter)
+- SQLite + PostgreSQL support with abstraction layer
+- Trend score calculation (0.6 × downloads + 0.4 × likes)
 
-- HuggingFace data collection
-- OpenRouter pricing integration
-- 5 core MCP tools
-- SQLite support (zero-config)
-- PostgreSQL support (production)
-- Trend score calculation
-- Database abstraction layer
+### ✅ V2.0 (Completed)
+- 7 additional tools: batch compare, recommendations, deployment guide, benchmarks, trend changes, versions, ecosystem
+- **Total: 16 tools**
+- Streamable HTTP transport (shared process mode)
+- SQLite WAL mode + scheduler file lock
+- Mirror pool with health checks
+- Collectors with retry + timeout
+- Quote-aware Arena CSV parser
 
-### 🔜 V2.0 (Planned)
+### ✅ V3.0 (Completed)
+- GitHub trending stars tracking (`get_github_trending`)
+- Dark horse detection algorithm (`get_darkhorse_models`)
+- Community sentiment analysis (`get_community_heat`)
+- Weekly/monthly ecosystem reports (`get_model_report`)
+- **Total: 20 tools**
+- Reddit JSON API integration (r/LocalLLaMA, r/MachineLearning, r/OpenAI)
+- Lightweight sentiment analysis engine (keyword-based)
+- Report generator with multi-section output
 
-- LMSYS Arena integration (ELO ratings)
-- GitHub trending/stars tracking
-- Reddit community sentiment analysis
-- Enhanced trend algorithm (4 factors)
-- Model recommendation engine
-- Dark horse detection (unexpectedly surging models)
-- Weekly/monthly trend reports
-
-### 🚀 V3.0 (Future)
-
-- AI analysis agent (automated insights)
+### 🚀 V4.0 (Future)
+- AI analysis agent with automated insights
+- WebSocket real-time updates
 - Predictive modeling (which models will trend)
-- Ecosystem analysis (base models + derivatives)
 - Agent-specific recommendations
 - Multi-language model support
-- Real-time WebSocket updates
+
+---
 
 ## 📄 License
 
-ISC License - See [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Model Context Protocol** - MCP SDK and protocol specification
-- **HuggingFace** - Model metadata and community data
-- **OpenRouter** - Pricing and availability data
-- **Anthropic** - Claude Desktop integration
+ISC License — See [LICENSE](LICENSE)
 
 ## 📞 Support
 
 - 🐛 **Bug Reports**: [Open an issue](https://github.com/jiyi1990118/mcp-model-radar/issues)
 - 💡 **Feature Requests**: [Open an issue](https://github.com/jiyi1990118/mcp-model-radar/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/jiyi1990118/mcp-model-radar/discussions)
-- 📧 **Email**: your-email@example.com
+- 📧 **Email**: xiyuan@gmail.com
 
 ---
 

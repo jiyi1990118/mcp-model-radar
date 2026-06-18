@@ -44,10 +44,41 @@ Add to your Claude Desktop config:
 
 Restart Claude Desktop and you'll have access to **17 powerful AI model intelligence tools**.
 
+### HTTP Mode (Shared Process — Recommended for Multiple Clients)
+
+For multi-client environments, start the server in HTTP mode:
+
+```bash
+# Start shared MCP server
+npm run start:http
+# or: MCP_TRANSPORT=http node dist/server.js
+```
+
+Then configure clients to connect via URL instead of spawning separate processes:
+
+```json
+{
+  "mcpServers": {
+    "model-radar": {
+      "url": "http://localhost:3100/mcp"
+    }
+  }
+}
+```
+
+Benefits: single process shared across all clients, zero startup latency, unified scheduler and sync state.
+
 ## Architecture
 
 ```
-MCP Server
+┌──────────────────────────────────────────────┐
+│              MCP Server (Dual-Mode)          │
+│                                              │
+│  --mode=stdio → StdioServerTransport         │
+│       (default, 1 process per client)        │
+│  --mode=http  → StreamableHTTPServerTransport│
+│       (shared process, multi-client)         │
+└──────────────────┬───────────────────────────┘
     ↓
 Analysis Layer
     ↓
@@ -135,7 +166,7 @@ Data Sources (HuggingFace, OpenRouter, Arena, GitHub, Reddit)
 
 ## MCP Tools
 
-**Total: 17 Tools** organized in 4 categories (Core, Filter, Advanced, Analytics)
+**Total: 20 Tools** organized in 5 categories (Core, Filter, Advanced, Analytics, V3)
 
 ### V1 Core Tools (✅ Implemented)
 - `get_hot_models`: Get trending models with trend scores
@@ -161,9 +192,13 @@ Data Sources (HuggingFace, OpenRouter, Arena, GitHub, Reddit)
 - `get_model_benchmarks`: Arena ELO ratings and benchmark scores
 - `get_trending_changes`: Track rank and metric changes over time (rising/falling models)
 
-### Future Tools (V3+)
-- `get_darkhorse_models`: Unexpectedly surging models
-- `get_community_heat`: Community discussion metrics
+### V3 Tools (✅ Implemented)
+- `get_github_trending`: Trending AI repositories on GitHub sorted by stars
+- `get_darkhorse_models`: Unexpectedly surging "dark horse" models with breakout potential
+- `get_community_heat`: Community discussion sentiment across Reddit (r/LocalLLaMA, r/MachineLearning, r/OpenAI)
+- `get_model_report`: Weekly/monthly AI model ecosystem trend reports with 4 sections
+
+### Future Tools (V4+)
 - `get_model_news`: Related news and announcements
 - `recommend_agent_model`: Agent-optimized model recommendations
 - `get_model_ranking`: Rankings by category (coding, reasoning, vision, etc.)
@@ -207,13 +242,14 @@ Evaluates: Tool calling, function calling, structured output, long context, reli
 - 5 analytics tools (batch compare, recommendations, deployment, benchmarks, trending changes)
 - Total: 17 tools implemented
 
-**V3 (Planned)**
-- Add Arena, GitHub, Reddit sources
-- Community heat tracking
-- Darkhorse detection
-- Ecosystem analysis
+**V3 (Completed)**
+- GitHub trending stars tracking + Reddit community sentiment
+- Dark horse detection algorithm (burst signal × underdog factor × cross-source)
+- Community sentiment analysis engine (keyword-based, no NLP deps)
+- Weekly/monthly report generator with 4-section output
+- **Total: 20 MCP tools**
 
-**V3**
+**V4 (Future)**
 - AI analysis agent
 - Daily/weekly reports
 - Automated recommendations
@@ -227,24 +263,42 @@ HuggingFace organizations:
 ## Technical Notes
 
 ### Database
-- **SQLite** (recommended for local development): Zero-config, auto-creates `./modelradar.db`
+- **SQLite** (recommended for local development): Zero-config, auto-creates `~/.mcp-model-radar/modelradar.db`
 - **PostgreSQL** (optional): Production-grade option for scaling
 - Database abstraction layer in `src/db/index.ts` allows easy switching via `DB_TYPE` env var
 - Both databases share the same query interface
+- **WAL mode**: SQLite uses Write-Ahead Logging for concurrent read access (required for HTTP mode)
+- **Scheduler lock**: In multi-process scenarios, only one process runs the data collection scheduler
+
+### Transport Modes
+- **Stdio** (default): Traditional MCP transport — one process per client, auto-launched by `npx`
+- **Streamable HTTP**: Shared process mode — start via `npm run start:http`, clients connect via `url` field
+- Set via `MCP_TRANSPORT` env var or `--http` CLI flag
+- Default port: `3100` (override with `MCP_PORT`)
 
 ### Quick Start Commands
 ```bash
 # Build project
 npm run build
 
+# Start in stdio mode (default, 1 process per client)
+npm start
+
+# Start in HTTP mode (shared process, multi-client)
+npm run start:http
+# or: MCP_TRANSPORT=http node dist/server.js
+
+# Development (stdio)
+npm run dev
+
+# Development (HTTP)
+npm run dev:http
+
 # Insert test data (SQLite default)
 npm run insert-test
 
 # Run all tool tests
 npm run test
-
-# Start MCP server
-npm start
 ```
 
 ### Other Notes

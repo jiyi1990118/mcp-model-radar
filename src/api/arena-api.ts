@@ -16,14 +16,16 @@ const CACHE_TTL = 3600000; // 1 hour
 export async function fetchArenaLeaderboard(): Promise<ArenaModel[]> {
   const now = Date.now();
   if (cachedData && (now - cacheTime) < CACHE_TTL) {
-    console.log('[arena-api] Using cached leaderboard');
+    console.error('[arena-api] Using cached leaderboard');
     return cachedData;
   }
 
-  console.log('[arena-api] Fetching Arena leaderboard');
+  console.error('[arena-api] Fetching Arena leaderboard');
 
   try {
-    const response = await fetch(ARENA_LEADERBOARD_URL);
+    const response = await fetch(ARENA_LEADERBOARD_URL, {
+      signal: AbortSignal.timeout(30000)
+    });
     if (!response.ok) {
       throw new Error(`Arena API error: ${response.status}`);
     }
@@ -34,14 +36,23 @@ export async function fetchArenaLeaderboard(): Promise<ArenaModel[]> {
     cachedData = models;
     cacheTime = now;
 
-    console.log(`[arena-api] Fetched ${models.length} models`);
+    console.error(`[arena-api] Fetched ${models.length} models`);
     return models;
   } catch (error: any) {
     console.error('[arena-api] Fetch failed:', error.message);
+    // Return stale cache with a warning
+    if (cachedData) {
+      console.error('[arena-api] Returning stale cached data (age: ' +
+        Math.round((now - cacheTime) / 60000) + ' min)');
+    }
     return cachedData || [];
   }
 }
 
+/**
+ * Quote-aware CSV parser.
+ * Handles quoted fields containing commas, e.g. "Model Name, v2".
+ */
 function parseArenaCSV(csv: string): ArenaModel[] {
   const lines = csv.trim().split('\n');
   if (lines.length < 2) return [];
@@ -49,15 +60,13 @@ function parseArenaCSV(csv: string): ArenaModel[] {
   const models: ArenaModel[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    const parts = line.split(',');
+    const fields = splitCSVLine(lines[i]);
+    if (fields.length < 3) continue;
 
-    if (parts.length < 3) continue;
-
-    const rank = parseInt(parts[0]);
-    const model = parts[1].trim();
-    const elo = parseInt(parts[2]);
-    const org = parts[3]?.trim() || 'Unknown';
+    const rank = parseInt(fields[0]);
+    const model = fields[1].trim();
+    const elo = parseInt(fields[2]);
+    const org = fields[3]?.trim() || 'Unknown';
 
     if (!isNaN(rank) && model && !isNaN(elo)) {
       models.push({ model, elo, rank, organization: org });
@@ -67,14 +76,25 @@ function parseArenaCSV(csv: string): ArenaModel[] {
   return models;
 }
 
-export async function getModelELO(modelName: string): Promise<number | null> {
-  const leaderboard = await fetchArenaLeaderboard();
-  const normalized = modelName.toLowerCase().replace(/[-_]/g, ' ');
+/**
+ * Split a CSV line respecting quoted fields.
+ */
+function splitCSVLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
 
-  const match = leaderboard.find(m =>
-    m.model.toLowerCase().replace(/[-_]/g, ' ').includes(normalized) ||
-    normalized.includes(m.model.toLowerCase().replace(/[-_]/g, ' '))
-  );
-
-  return match ? match.elo : null;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      fields.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
 }

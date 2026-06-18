@@ -1,3 +1,6 @@
+import { existsSync } from 'fs';
+import { getDefaultDbPath } from './db-path.js';
+
 let dbAvailable: boolean | null = null;
 
 export function isDatabaseAvailable(): boolean {
@@ -7,9 +10,10 @@ export function isDatabaseAvailable(): boolean {
     const dbType = process.env.DB_TYPE || 'sqlite';
 
     if (dbType === 'sqlite') {
-      const sqlitePath = process.env.SQLITE_DB_PATH || './modelradar.db';
-      dbAvailable = true;
-      return true;
+      const sqlitePath = process.env.SQLITE_DB_PATH || getDefaultDbPath();
+      // Verify the DB file exists and is accessible
+      dbAvailable = existsSync(sqlitePath);
+      return dbAvailable;
     } else if (dbType === 'postgresql') {
       const hasConfig = !!(process.env.DB_HOST && process.env.DB_NAME);
       dbAvailable = hasConfig;

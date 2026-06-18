@@ -85,7 +85,7 @@ npm run insert-test
       "args": ["/absolute/path/to/mcp-model-radar/dist/server.js"],
       "env": {
         "DB_TYPE": "sqlite",
-        "SQLITE_DB_PATH": "./modelradar.db"
+        "SQLITE_DB_PATH": "~/.mcp-model-radar/modelradar.db"
       }
     }
   }
@@ -262,7 +262,7 @@ npm run insert-test
       "args": ["/path/to/dist/server.js"],
       "env": {
         "DB_TYPE": "sqlite",
-        "SQLITE_DB_PATH": "./modelradar.db",
+        "SQLITE_DB_PATH": "~/.mcp-model-radar/modelradar.db",
         "LOG_LEVEL": "info",
         "ENABLE_SCHEDULER": "false"
       }
@@ -276,7 +276,7 @@ npm run insert-test
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | `DB_TYPE` | 数据库类型 | `sqlite` |
-| `SQLITE_DB_PATH` | SQLite数据库路径 | `./modelradar.db` |
+| `SQLITE_DB_PATH` | SQLite数据库路径 | `~/.mcp-model-radar/modelradar.db` |
 | `DATABASE_URL` | PostgreSQL连接URL | - |
 | `LOG_LEVEL` | 日志级别 | `info` |
 | `ENABLE_SCHEDULER` | 启用定时采集 | `false` |
@@ -375,7 +375,7 @@ npm run insert-test
       "args": ["/absolute/path/to/modelRadar/dist/server.js"],
       "env": {
         "DB_TYPE": "sqlite",
-        "SQLITE_DB_PATH": "./modelradar.db"
+        "SQLITE_DB_PATH": "~/.mcp-model-radar/modelradar.db"
       }
     }
   }
@@ -501,7 +501,7 @@ All MCP clients support environment variables via `env` field:
       "args": ["/path/to/dist/server.js"],
       "env": {
         "DB_TYPE": "sqlite",
-        "SQLITE_DB_PATH": "./modelradar.db",
+        "SQLITE_DB_PATH": "~/.mcp-model-radar/modelradar.db",
         "LOG_LEVEL": "info",
         "ENABLE_SCHEDULER": "false"
       }
@@ -515,7 +515,7 @@ All MCP clients support environment variables via `env` field:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DB_TYPE` | Database type | `sqlite` |
-| `SQLITE_DB_PATH` | SQLite database path | `./modelradar.db` |
+| `SQLITE_DB_PATH` | SQLite database path | `~/.mcp-model-radar/modelradar.db` |
 | `DATABASE_URL` | PostgreSQL connection URL | - |
 | `LOG_LEVEL` | Log level | `info` |
 | `ENABLE_SCHEDULER` | Enable scheduled collection | `false` |

@@ -2,6 +2,7 @@
 import { spawn } from 'child_process';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { getDefaultDbPath } from './utils/db-path.js';
 
 const command = process.argv[2];
 const cwd = process.cwd();
@@ -23,7 +24,7 @@ async function main() {
       await run('npm', ['run', 'build']);
     }
 
-    if (!existsSync(join(cwd, 'modelradar.db'))) {
+    if (!existsSync(process.env.SQLITE_DB_PATH || getDefaultDbPath())) {
       console.log('💾 Initializing database with test data...');
       await run('npm', ['run', 'insert-test']);
     }

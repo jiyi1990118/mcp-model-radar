@@ -11,7 +11,7 @@ export async function searchModels(args: any) {
   let source = 'database';
   let models: any[] = [];
 
-  console.log(`[search_models] Searching: "${keyword}", filters: ${JSON.stringify(filters)}, sort: ${sortBy}, limit: ${limit}`);
+  console.error(`[search_models] Searching: "${keyword}", filters: ${JSON.stringify(filters)}, sort: ${sortBy}, limit: ${limit}`);
 
   const dbAvailable = isDatabaseAvailable();
 
@@ -20,17 +20,17 @@ export async function searchModels(args: any) {
     try {
       models = await dbSearchModels(keyword, filters, sortBy, limit);
       if (models.length > 0) {
-        console.log(`[search_models] Found ${models.length} models in database`);
+        console.error(`[search_models] Found ${models.length} models in database`);
       } else {
-        console.log(`[search_models] No results in database, trying HuggingFace API...`);
+        console.error(`[search_models] No results in database, trying HuggingFace API...`);
         source = 'api';
       }
     } catch (error: any) {
-      console.log(`[search_models] Database query failed, trying API...`);
+      console.error(`[search_models] Database query failed, trying API...`);
       source = 'api';
     }
   } else {
-    console.log(`[search_models] Database not configured, using API mode`);
+    console.error(`[search_models] Database not configured, using API mode`);
     source = 'api';
   }
 
@@ -38,12 +38,12 @@ export async function searchModels(args: any) {
   if (source === 'api') {
     try {
       models = await searchHFModels(keyword, limit);
-      console.log(`[search_models] Found ${models.length} models from HuggingFace API`);
+      console.error(`[search_models] Found ${models.length} models from HuggingFace API`);
       source = 'huggingface';
 
       // Sync to database if available
       if (dbAvailable && models.length > 0) {
-        console.log(`[search_models] Syncing ${models.length} models to database...`);
+        console.error(`[search_models] Syncing ${models.length} models to database...`);
         await Promise.all(models.map(async (model) => {
           try {
             await upsertModel(model);
@@ -72,7 +72,7 @@ export async function searchModels(args: any) {
     created_at: m.created_at
   }));
 
-  console.log(`[search_models] Returning ${result.length} models (source: ${source})`);
+  console.error(`[search_models] Returning ${result.length} models (source: ${source})`);
 
   return {
     success: true,

@@ -1,4 +1,4 @@
-import { getModelsByAuthor } from '../db/queries-sqlite.js';
+import { getModelsByAuthor } from '../db/index.js';
 
 interface GetModelsByAuthorArgs {
   author: string;
@@ -8,7 +8,7 @@ interface GetModelsByAuthorArgs {
 export default async function getModelsByAuthorHandler(args: GetModelsByAuthorArgs) {
   console.error(`[get_models_by_author] Fetching models by author "${args.author}", limit ${args.limit || 20}...`);
 
-  const models = getModelsByAuthor(args.author, args.limit || 20);
+  const models = await getModelsByAuthor(args.author, args.limit || 20);
 
   console.error(`[get_models_by_author] Successfully returned ${models.length} models`);
 
